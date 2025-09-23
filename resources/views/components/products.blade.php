@@ -3,14 +3,14 @@
         <!-- Card Besar -->
         <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold">Produk Unggulan</h2>
+                <h2 class="text-xl font-bold">Rekomendasi Produk</h2>
                 <a href="/" class="text-orange-600 hover:text-orange-700">Lihat Semua →</a>
             </div>
 
             <!-- Grid Produk -->
             <div id="product-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
                 @foreach($products as $product)
-                <a href="#" class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-200 block">
+                <a href="{{ $product->slug }}" class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-200 block">
                     <div class="aspect-square flex items-center justify-center">
                         <img src="{{ $product->image ? asset('storage/'.$product->image) : asset('images/default-product.png') }}" alt="{{ $product->name }}" class="object-cover w-full h-full">
                     </div>

@@ -6,12 +6,18 @@
                 <a href="#" class="text-orange-600 hover:text-orange-700 text-sm">Lihat Semua →</a>
             </div>
 
-            <div id="categoriesContainer" class="flex overflow-x-auto space-x-3 scrollbar-hide pb-1 md:pb-2 cursor-grab">
+            <div id="categoriesContainer" class="
+                flex overflow-x-auto space-x-3 pb-1 md:pb-2 cursor-grab
+                md:grid md:grid-cols-[repeat(auto-fit,minmax(120px,1fr))] md:gap-4 md:overflow-visible md:space-x-0
+                scrollbar-hide
+            ">
                 @foreach($categories as $category)
-                <div class="flex-shrink-0 w-20 md:w-24 bg-white rounded-lg p-2 md:p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center border border-gray-200">
+                <div class="flex-shrink-0 w-20 md:w-full bg-white rounded-lg p-2 md:p-3
+                    shadow-sm hover:shadow-md transition-shadow cursor-pointer
+                    text-center border border-gray-200">
                     <div class="mb-1 md:mb-2 flex justify-center">
-                        @if($category->ikon)
-                        <img src="{{ asset('storage/' . $category->ikon) }}" alt="{{ $category->nama }}" class="w-10 h-10 md:w-12 md:h-12 object-contain">
+                        @if($category->icon)
+                        <img src="{{ asset('storage/' . $category->icon) }}" alt="{{ $category->nama }}" class="w-10 h-10 md:w-12 md:h-12 object-contain">
                         @else
                         <div class="text-2xl md:text-3xl">📦</div>
                         @endif
@@ -25,3 +31,16 @@
         </div>
     </div>
 </section>
+
+<style>
+/* For Chrome, Safari, and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* For IE, Edge, and Firefox */
+.scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+</style>

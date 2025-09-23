@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\Categories\Schemas;
 
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Toggle;
+use Illuminate\Support\Facades\Storage;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
 
 class CategoryForm
 {
@@ -25,8 +26,17 @@ class CategoryForm
                     ->default(0),
                 TextInput::make('description'),
                 FileUpload::make('icon')
+                    ->directory('categories')
                     ->image()
-                    ->nullable(),
+                    ->enableOpen()
+                    ->enableDownload()
+                    ->imageEditor()
+                    ->disk('public')
+                // ->deleteUploadedFileUsing(function ($file) {
+                //     Storage::disk('public')->delete($file);
+                // })
+                ,
+
             ]);
     }
 }
