@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-@include('components.header')
+
+
 @include('components.hero')
 
 {{-- Kategori --}}
@@ -14,5 +15,8 @@
 @include('components.featured-products', ['products' => $featuredProducts])
 
 {{-- Produk Rekomendasi (infinite scroll) --}}
-@include('components.products', ['products' => $recommendedProducts])
+
+@livewire('recommended-product-scroll')
+
+{{-- Semua Produk --}}
 @endsection

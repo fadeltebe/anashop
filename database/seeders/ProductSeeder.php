@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
@@ -19,8 +20,29 @@ class ProductSeeder extends Seeder
             ['category_id' => 6, 'code' => 'DM001', 'name' => 'Dress Muslimah Panjang', 'slug' => 'dress-muslimah-panjang', 'price' => 250000, 'discount_price' => 230000, 'stock' => 20, 'total_sales' => 0, 'thumbnail' => null, 'photos' => json_encode(['dress1.jpg', 'dress2.jpg'])],
         ];
 
+        // Insert produk awal
         foreach ($products as $product) {
             Product::create($product);
+        }
+
+        // Generate produk tambahan dummy sampai total 30
+        for ($i = 7; $i <= 30; $i++) {
+            $categoryId = ($i % 6) + 1; // supaya kategori berulang 1–6
+            $name = "Produk Dummy {$i}";
+            $slug = Str::slug($name);
+
+            Product::create([
+                'category_id'    => $categoryId,
+                'code'           => 'PD' . str_pad($i, 3, '0', STR_PAD_LEFT),
+                'name'           => $name,
+                'slug'           => $slug,
+                'price'          => rand(50000, 300000),
+                'discount_price' => rand(40000, 250000),
+                'stock'          => rand(10, 100),
+                'total_sales'    => 0,
+                'thumbnail'      => null,
+                'photos'         => json_encode(["dummy{$i}_1.jpg", "dummy{$i}_2.jpg"]),
+            ]);
         }
 
         // Hitung total produk per kategori

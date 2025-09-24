@@ -6,63 +6,76 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Banner;
 use Livewire\Component;
-use Livewire\WithPagination;
+use Illuminate\Database\Eloquent\Collection;
 
 class HomePage extends Component
 {
-    use WithPagination;
+    // Mengganti $perPage menjadi $loadedCount
+    public int $loadedCount = 12;
 
-    public $perPage = 12;
-    protected $paginationTheme = 'tailwind';
+    // Properti untuk menyimpan daftar produk yang akan di-scroll
+    // WAJIB menggunakan Collection agar bisa di-merge
+    public Collection $recommendedProducts;
 
-    /**
-     * Reset pagination jika jumlah data per halaman berubah
-     */
-    public function updatingPerPage()
+    protected const LOAD_INCREMENT = 12;
+
+    public bool $hasMorePages = true;
+
+    // Hapus protected $listeners = ['load-more' => 'loadMore']; karena kita pakai x-intersect
+
+    public function mount(): void
     {
-        $this->resetPage();
+        // Muat 12 produk awal saat komponen pertama kali dimuat
+        $this->recommendedProducts = $this->loadProducts(0, $this->loadedCount);
+
+        // Cek apakah total produk kurang dari jumlah awal
+        if (Product::count() <= $this->loadedCount) {
+            $this->hasMorePages = false;
+        }
     }
 
-    /**
-     * Load more produk rekomendasi (infinite scroll)
-     */
-    public function loadMore()
+    // Metode Helper untuk Query
+    protected function loadProducts(int $skip, int $take): Collection
     {
-        $this->perPage += 12;
+        return Product::latest()
+            ->skip($skip)
+            ->take($take)
+            ->get();
+    }
+
+    // Metode yang dipanggil oleh x-intersect
+    public function loadMore(): void
+    {
+        // Pastikan tidak memuat jika sudah habis
+        if (!$this->hasMorePages) {
+            return;
+        }
+
+        // Ambil produk berikutnya saja
+        $newProducts = $this->loadProducts($this->loadedCount, self::LOAD_INCREMENT);
+
+        // Jika tidak ada lagi produk yang tersisa
+        if ($newProducts->isEmpty()) {
+            $this->hasMorePages = false;
+            return;
+        }
+
+        // Gabungkan produk baru ke koleksi yang sudah ada (INI KUNCI INFINITE SCROLL)
+        $this->recommendedProducts = $this->recommendedProducts->merge($newProducts);
+
+        // Perbarui total produk yang sudah dimuat
+        $this->loadedCount += self::LOAD_INCREMENT;
     }
 
     public function render()
     {
+        // recommendedProducts sudah ada sebagai properti publik
         return view('livewire.home-page', [
-            // Kategori aktif
-            'categories' => cache()->remember(
-                'active_categories',
-                600,
-                fn() => Category::where('is_active', true)->get()
-            ),
-
-            // Produk flash sale (harga diskon lebih kecil dari harga normal)
-            'flashSales' => Product::flashSale()
-                ->latest()
-                ->take(6)
-                ->get(),
-
-            // Produk unggulan (terlaris berdasarkan sold_count)
-            'featuredProducts' => Product::featured()
-                ->take(6)
-                ->get(),
-
-            // Produk rekomendasi (infinite scroll)
-            'recommendedProducts' => Product::with('category', 'banners')
-                ->latest()
-                ->paginate($this->perPage),
-
-            // Banner aktif
-            'banners' => cache()->remember(
-                'active_banners',
-                600,
-                fn() => Banner::with('products')->where('is_active', true)->get()
-            ),
+            'categories' => Category::where('is_active', true)->get(),
+            'flashSales' => Product::flashSale()->latest()->take(6)->get(),
+            'featuredProducts' => Product::featured()->take(6)->get(),
+            'banners' => Banner::with('products')->where('is_active', true)->get(),
+            // TIDAK PERLU mengambil recommendedProducts lagi di render() karena sudah ada di properti $this->recommendedProducts
         ]);
     }
 }

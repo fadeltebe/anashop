@@ -17,6 +17,7 @@
 <body class="bg-gray-100 font-sans antialiased">
     <div class="min-h-screen">
         <main>
+            @include('components.header')
             @yield('content')
         </main>
     </div>

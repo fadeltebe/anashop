@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use Faker\Core\File;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -23,7 +25,7 @@ class ProductForm
                 TextInput::make('price')
                     ->required()
                     ->numeric()
-                    ->prefix('$'),
+                    ->prefix('Rp.'),
                 TextInput::make('discount_price')
                     ->required()
                     ->numeric(),
@@ -34,8 +36,19 @@ class ProductForm
                     ->required()
                     ->numeric()
                     ->default(0),
-                TextInput::make('thumbnail'),
-                TextInput::make('photos'),
+                FileUpload::make('thumbnail')
+                    ->directory('products')
+                    ->visibility('public')
+                    ->disk('public')
+                    ->required(),
+                FileUpload::make('photos')
+                    ->disk('public')
+                    ->multiple()
+                    ->directory('products')
+                    ->visibility('public'),
+                TextInput::make('description')
+                    ->required()
+                    ->maxLength(65535),
             ]);
     }
 }

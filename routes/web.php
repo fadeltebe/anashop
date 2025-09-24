@@ -1,9 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Livewire\HomePage;
 use App\Livewire\FlashSalePage;
 use App\Livewire\ProductDetail;
-use Illuminate\Support\Facades\Route;
 use App\Livewire\FeaturedProductsPage;
 use App\Http\Controllers\BannerController;
 
@@ -17,8 +17,6 @@ Route::get('/', HomePage::class)->name('home');
 Route::get('/flash-sale', FlashSalePage::class)->name('flash-sale.all');
 Route::get('/featured-products', FeaturedProductsPage::class)->name('featured.all');
 
-
-Route::get('/product/{slug}', ProductDetail::class)->name('ecommerce.show');
-
+Route::get('/product/{slug}', ProductDetail::class)->name('product.detail');
 
 Route::get('/banner/{slug}', [BannerController::class, 'show'])->name('banner.show');
