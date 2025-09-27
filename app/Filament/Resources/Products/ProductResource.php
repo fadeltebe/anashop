@@ -2,17 +2,18 @@
 
 namespace App\Filament\Resources\Products;
 
-use App\Filament\Resources\Products\Pages\CreateProduct;
+use BackedEnum;
+use App\Models\Product;
+use Filament\Tables\Table;
+use Filament\Schemas\Schema;
+use Filament\Resources\Resource;
+use Filament\Support\Icons\Heroicon;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Filament\Resources\Products\Tables\ProductsTable;
-use App\Models\Product;
-use BackedEnum;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Table;
+use App\Filament\Resources\Products\RelationManagers\ItemsRelationManager;
 
 class ProductResource extends Resource
 {
@@ -33,7 +34,7 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            'items' => ItemsRelationManager::class,
         ];
     }
 

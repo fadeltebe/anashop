@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Filament\Resources\ProductItems\Pages;
+namespace App\Filament\Resources\Products\Resources\ProductItems\Pages;
 
-use App\Filament\Resources\ProductItems\ProductItemResource;
+use App\Filament\Resources\Products\Resources\ProductItems\ProductItemResource;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditProductItem extends EditRecord
@@ -14,7 +13,6 @@ class EditProductItem extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            ViewAction::make(),
             DeleteAction::make(),
         ];
     }

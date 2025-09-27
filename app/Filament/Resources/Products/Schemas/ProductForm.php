@@ -67,6 +67,9 @@ class ProductForm
                     ->directory('product-photos')
                     ->disk('public')
                     ->multiple()
+                    ->reorderable()
+                    ->panelLayout('grid') // tampil dalam grid
+                    ->visibility('public')
                     ->columnSpanFull(),
                 Toggle::make('is_published')
                     ->required(),

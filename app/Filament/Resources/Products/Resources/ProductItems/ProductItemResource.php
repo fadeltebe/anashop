@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Filament\Resources\ProductItems;
+namespace App\Filament\Resources\Products\Resources\ProductItems;
 
-use App\Filament\Resources\ProductItems\Pages\CreateProductItem;
-use App\Filament\Resources\ProductItems\Pages\EditProductItem;
-use App\Filament\Resources\ProductItems\Pages\ListProductItems;
-use App\Filament\Resources\ProductItems\Pages\ViewProductItem;
-use App\Filament\Resources\ProductItems\Schemas\ProductItemForm;
-use App\Filament\Resources\ProductItems\Schemas\ProductItemInfolist;
-use App\Filament\Resources\ProductItems\Tables\ProductItemsTable;
+use App\Filament\Resources\Products\ProductResource;
+use App\Filament\Resources\Products\Resources\ProductItems\Pages\CreateProductItem;
+use App\Filament\Resources\Products\Resources\ProductItems\Pages\EditProductItem;
+use App\Filament\Resources\Products\Resources\ProductItems\Schemas\ProductItemForm;
+use App\Filament\Resources\Products\Resources\ProductItems\Tables\ProductItemsTable;
 use App\Models\ProductItem;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -22,14 +20,11 @@ class ProductItemResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static ?string $parentResource = ProductResource::class;
+
     public static function form(Schema $schema): Schema
     {
         return ProductItemForm::configure($schema);
-    }
-
-    public static function infolist(Schema $schema): Schema
-    {
-        return ProductItemInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table
@@ -47,9 +42,7 @@ class ProductItemResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListProductItems::route('/'),
             'create' => CreateProductItem::route('/create'),
-            'view' => ViewProductItem::route('/{record}'),
             'edit' => EditProductItem::route('/{record}/edit'),
         ];
     }

@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Filament\Resources\ProductItems\Tables;
+namespace App\Filament\Resources\Products\Resources\ProductItems\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -16,15 +15,13 @@ class ProductItemsTable
     {
         return $table
             ->columns([
-                TextColumn::make('product_id')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('variant')
                     ->searchable(),
                 TextColumn::make('size')
                     ->searchable(),
                 TextColumn::make('price')
                     ->money()
+                    ->prefix('Rp')
                     ->sortable(),
                 TextColumn::make('stock')
                     ->numeric()
@@ -49,7 +46,6 @@ class ProductItemsTable
                 //
             ])
             ->recordActions([
-                ViewAction::make(),
                 EditAction::make(),
             ])
             ->toolbarActions([

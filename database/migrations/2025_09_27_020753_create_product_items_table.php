@@ -14,10 +14,13 @@ return new class extends Migration
         Schema::create('product_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->string('variant_name')->nullable(); // contoh: Hitam, Merah (boleh null)
-            $table->string('size_name')->nullable();    // contoh: L, XL, 38, 39 (boleh null)
+            $table->string('variant')->nullable(); // contoh: "Merah", "Hitam"
+            $table->string('size')->nullable();    // contoh: "S", "M", "L"
+            $table->decimal('price', 12, 2)->nullable();
             $table->integer('stock')->default(0);
-            $table->string('image')->nullable();        // gambar khusus untuk kombinasi ini
+            $table->string('sku')->unique();
+            $table->integer('total_sales')->default(0); // penjualan per item
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

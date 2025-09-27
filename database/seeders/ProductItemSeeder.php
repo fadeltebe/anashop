@@ -10,7 +10,6 @@ class ProductItemSeeder extends Seeder
 {
     public function run(): void
     {
-        // Ambil semua produk
         $products = Product::all();
 
         foreach ($products as $product) {
@@ -18,9 +17,12 @@ class ProductItemSeeder extends Seeder
             if ($product->id % 4 === 1) {
                 ProductItem::create([
                     'product_id'   => $product->id,
-                    'variant_name' => null,
-                    'size_name'    => null,
+                    'variant' => null,
+                    'size'    => null,
+                    'sku'     => 'SKU-' . strtoupper(uniqid()),
+                    'price'   => $product->price,
                     'stock'        => rand(5, 50),
+                    'total_sales'  => rand(0, 20),
                     'image'        => 'default.jpg',
                 ]);
             }
@@ -30,9 +32,12 @@ class ProductItemSeeder extends Seeder
                 foreach (['Hitam', 'Putih'] as $variant) {
                     ProductItem::create([
                         'product_id'   => $product->id,
-                        'variant_name' => $variant,
-                        'size_name'    => null,
+                        'variant' => $variant,
+                        'size'    => null,
+                        'sku'     => 'SKU-' . strtoupper(uniqid()),
+                        'price'   => $product->price,
                         'stock'        => rand(5, 50),
+                        'total_sales'  => rand(0, 20),
                         'image'        => strtolower($variant) . '.jpg',
                     ]);
                 }
@@ -43,9 +48,12 @@ class ProductItemSeeder extends Seeder
                 foreach (['M', 'L', 'XL'] as $size) {
                     ProductItem::create([
                         'product_id'   => $product->id,
-                        'variant_name' => null,
-                        'size_name'    => $size,
+                        'variant' => null,
+                        'size'    => $size,
+                        'sku'     => 'SKU-' . strtoupper(uniqid()),
+                        'price'   => $product->price,
                         'stock'        => rand(5, 50),
+                        'total_sales'  => rand(0, 20),
                         'image'        => strtolower($size) . '.jpg',
                     ]);
                 }
@@ -57,9 +65,12 @@ class ProductItemSeeder extends Seeder
                     foreach (['M', 'L'] as $size) {
                         ProductItem::create([
                             'product_id'   => $product->id,
-                            'variant_name' => $variant,
-                            'size_name'    => $size,
+                            'variant' => $variant,
+                            'size'    => $size,
+                            'sku'     => 'SKU-' . strtoupper(uniqid()),
+                            'price'   => $product->price,
                             'stock'        => rand(5, 50),
+                            'total_sales'  => rand(0, 20),
                             'image'        => strtolower($variant . '-' . $size) . '.jpg',
                         ]);
                     }
