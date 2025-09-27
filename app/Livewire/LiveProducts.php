@@ -2,16 +2,15 @@
 
 namespace App\Livewire;
 
-use App\Models\Product;
 use Livewire\Component;
+use App\Models\Product;
 use Livewire\WithPagination;
 
-class FeaturedProductsPage extends Component
+class LiveProducts extends Component
 {
     use WithPagination;
 
     public $perPage = 12;
-    protected $paginationTheme = 'tailwind';
 
     public function loadMore()
     {
@@ -20,10 +19,9 @@ class FeaturedProductsPage extends Component
 
     public function render()
     {
-        $products = Product::featured()
-            ->paginate($this->perPage);
+        $products = Product::live()->paginate($this->perPage);
 
-        return view('livewire.featured-products-page', [
+        return view('livewire.live-products', [
             'products' => $products,
         ]);
     }

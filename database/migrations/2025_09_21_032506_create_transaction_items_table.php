@@ -19,6 +19,8 @@ return new class extends Migration
             $table->decimal('price', 15, 2);
             $table->decimal('subtotal', 15, 2);
             $table->timestamps();
+            $table->softDeletes(); // Untuk mengaktifkan soft deletes
+
         });
     }
 
@@ -27,6 +29,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('transaction_items', function (Blueprint $table) {
+            $table->dropForeign(['transaction_id']);
+            $table->dropForeign(['product_id']);
+        });
         Schema::dropIfExists('transaction_items');
     }
 };

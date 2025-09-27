@@ -21,6 +21,8 @@ return new class extends Migration
             $table->decimal('grand_total', 15, 2)->default(0); // Total akhir yang harus dibayar: total - discount + additional_fee
             $table->string('status')->default('pending'); // Status transaksi: pending, paid, cancelled
             $table->timestamps(); // created_at dan updated_at
+            $table->softDeletes(); // Untuk mengaktifkan soft deletes
+
         });
     }
 

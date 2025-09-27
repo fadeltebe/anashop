@@ -71,10 +71,11 @@ class HomePage extends Component
     {
         // recommendedProducts sudah ada sebagai properti publik
         return view('livewire.home-page', [
+            'banners' => Banner::with('products')->where('is_active', true)->get(),
             'categories' => Category::where('is_active', true)->get(),
+            'liveProducts' => Product::live()->latest()->take(6)->get(),
             'flashSales' => Product::flashSale()->latest()->take(6)->get(),
             'featuredProducts' => Product::featured()->take(6)->get(),
-            'banners' => Banner::with('products')->where('is_active', true)->get(),
             // TIDAK PERLU mengambil recommendedProducts lagi di render() karena sudah ada di properti $this->recommendedProducts
         ]);
     }

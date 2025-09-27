@@ -22,15 +22,10 @@
 
                         {{-- ... Rating, Harga, Diskon, Stok, Terjual (kode sama seperti sebelumnya) ... --}}
                         @if(!empty($product->rating))
-                        <div class="flex items-center mb-2">
-                            <div class="flex text-yellow-400 text-xs">
-                                @for($i = 0; $i < floor($product->rating); $i++)
-                                    <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c..." />
-                                    </svg>
-                                    @endfor
+                        <div class="flex items-center mb-2 text-xs">
+                            <div class="flex">
+                                <x-rating :value="$product->rating" />
                             </div>
-                            <span class="text-gray-500 text-xs ml-1">({{ number_format($product->rating, 1) }})</span>
                         </div>
                         @endif
 

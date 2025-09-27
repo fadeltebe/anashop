@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
-use Faker\Core\File;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use SebastianBergmann\CodeUnit\FileUnit;
 
 class ProductForm
 {
@@ -13,21 +16,23 @@ class ProductForm
     {
         return $schema
             ->components([
-                TextInput::make('category_id')
-                    ->required()
-                    ->numeric(),
+                Select::make('category_id')
+                    ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 TextInput::make('code')
                     ->required(),
                 TextInput::make('name')
                     ->required(),
                 TextInput::make('slug')
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true),
                 TextInput::make('price')
                     ->required()
                     ->numeric()
-                    ->prefix('Rp.'),
+                    ->prefix('Rp '),
                 TextInput::make('discount_price')
-                    ->required()
                     ->numeric(),
                 TextInput::make('stock')
                     ->required()
@@ -36,19 +41,41 @@ class ProductForm
                     ->required()
                     ->numeric()
                     ->default(0),
+                TextInput::make('weight')
+                    ->required()
+                    ->numeric()
+                    ->default(0),
+                TextInput::make('rating')
+                    ->required()
+                    ->numeric(),
+                TextInput::make('rating_count')
+                    ->required()
+                    ->numeric()
+                    ->default(0),
+                Textarea::make('description')
+                    ->columnSpanFull(),
                 FileUpload::make('thumbnail')
-                    ->directory('products')
-                    ->visibility('public')
+                    ->image()
+                    ->maxSize(1024) // Maksimum 1MB
+                    ->directory('product-thumbnails')
                     ->disk('public')
-                    ->required(),
+                    ->visibility('public')
+                    ->columnSpanFull(),
                 FileUpload::make('photos')
+                    ->image()
+                    ->maxSize(2048) // Maksimum 2MB per foto
+                    ->directory('product-photos')
                     ->disk('public')
                     ->multiple()
-                    ->directory('products')
-                    ->visibility('public'),
-                TextInput::make('description')
-                    ->required()
-                    ->maxLength(65535),
+                    ->columnSpanFull(),
+                Toggle::make('is_published')
+                    ->required(),
+                Toggle::make('is_live')
+                    ->required(),
+                Toggle::make('is_featured')
+                    ->required(),
+                Toggle::make('is_flash_sale')
+                    ->required(),
             ]);
     }
 }

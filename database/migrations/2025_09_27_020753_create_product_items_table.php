@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('banner_product', function (Blueprint $table) {
+        Schema::create('product_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('banner_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+            $table->string('variant_name')->nullable(); // contoh: Hitam, Merah (boleh null)
+            $table->string('size_name')->nullable();    // contoh: L, XL, 38, 39 (boleh null)
+            $table->integer('stock')->default(0);
+            $table->string('image')->nullable();        // gambar khusus untuk kombinasi ini
             $table->timestamps();
-            $table->softDeletes(); // Untuk mengaktifkan soft deletes
-
         });
     }
 
@@ -26,10 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('banner_product', function (Blueprint $table) {
-            $table->dropForeign(['banner_id']);
-            $table->dropForeign(['product_id']);
-        });
-        Schema::dropIfExists('banner_products');
+        Schema::dropIfExists('product_items');
     }
 };

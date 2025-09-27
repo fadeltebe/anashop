@@ -16,21 +16,48 @@
             <!-- List produk flash sale scroll horizontal -->
             <div id="flashSaleContainer" class="flex overflow-x-auto space-x-3 scrollbar-hide pb-1 md:pb-2 cursor-grab">
                 @foreach($flashSales as $product)
-                <div class="flex-shrink-0 w-40 md:w-48 bg-white rounded-lg p-2 md:p-3 shadow-sm hover:shadow-md transition-shadow border border-gray-200">
-                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-28 md:h-32 object-cover rounded-md mb-2">
+                <a href="{{ url('product/'.$product->slug) }}" class="flex-shrink-0 w-40 md:w-48 bg-white rounded-lg p-2 md:p-3 shadow-sm hover:shadow-md transition-shadow border border-gray-200 block">
+                    <img src="{{ $product->thumbnail ? asset('storage/'.$product->thumbnail) : asset('images/default-product.png') }}" alt="{{ $product->name }}" class="w-full h-28 md:h-32 object-cover rounded-md mb-2">
+
                     <h3 class="font-medium text-gray-700 text-sm line-clamp-2">
                         {{ $product->name }}
                     </h3>
-                    <div class="mt-1">
-                        <span class="text-red-600 font-bold text-sm">
-                            Rp{{ number_format($product->discount_price, 0, ',', '.') }}
-                        </span>
-                        <span class="text-gray-400 line-through text-xs ml-1">
-                            Rp{{ number_format($product->price, 0, ',', '.') }}
-                        </span>
-                    </div>
-                </div>
+
+                    @if(!empty($product->rating))
+                    <div class="flex items-center mb-2 text-xs">
+                        <div class="flex">
+                            {{-- Bintang penuh --}}
+                            @for($i = 0; $i < floor($product->rating); $i++)
+                                ⭐
+                                @endfor
+
+                                {{-- Setengah bintang --}}
+                                @if($product->rating - floor($product->rating) >= 0.5)
+                                🌟
+                                @php $stars = floor($product->rating) + 1; @endphp
+                                @else
+                                @php $stars = floor($product->rating); @endphp
+                                @endif
+
+                                {{-- Bintang kosong --}}
+                                @for($i = $stars; $i < 5; $i++) ✰ @endfor </div>
+
+                                    {{-- Angka rating --}}
+                                    <span class="text-gray-500 ml-1">({{ number_format($product->rating, 1) }})</span>
+                        </div>
+                        @endif
+
+                        <div class="mt-1">
+                            <span class="text-red-600 font-bold text-sm">
+                                Rp{{ number_format($product->discount_price, 0, ',', '.') }}
+                            </span>
+                            <span class="text-gray-400 line-through text-xs ml-1">
+                                Rp{{ number_format($product->price, 0, ',', '.') }}
+                            </span>
+                        </div>
+                </a>
                 @endforeach
+
             </div>
 
         </div>

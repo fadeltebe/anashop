@@ -20,9 +20,7 @@ class FlashSalePage extends Component
 
     public function render()
     {
-        // Produk dengan diskon (flash sale)
-        $products = Product::whereColumn('discount_price', '<', 'price')
-            ->latest()
+        $products = Product::flashSale()
             ->paginate($this->perPage);
 
         return view('livewire.flash-sale-page', [

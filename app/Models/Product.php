@@ -10,15 +10,24 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category_id',
-        'code',
         'name',
         'slug',
+        'code',
+        'category_id',
         'price',
-        'stock',
-        'total_sales',
+        'discount_price',
+        'description',
         'thumbnail',
-        'photos',
+        'photos', // JSON field
+        'stock',
+        'is_featured',
+        'is_flash_sale',
+        'is_published',
+        'is_live',
+        'weight',
+        'rating',
+        'rating_count',
+        'total_sales',
     ];
 
     protected function casts(): array
@@ -38,14 +47,19 @@ class Product extends Model
         return $this->belongsToMany(Banner::class, 'banner_product', 'product_id', 'banner_id');
     }
 
+    public function scopeLive($query)
+    {
+        return $query->where('is_live', true)->latest();
+    }
+
     public function scopeFlashSale($query)
     {
-        return $query->whereColumn('discount_price', '<', 'price');
+        return $query->where('is_flash_sale', true)->latest();
     }
 
     public function scopeFeatured($query)
     {
-        return $query->orderBy('id', 'desc');
+        return $query->orderBy('total_sales', 'desc');
     }
     public function scopeRecommended($query)
     {
@@ -59,5 +73,10 @@ class Product extends Model
             $query->where('name', 'like', $term)
                 ->orWhere('code', 'like', $term);
         });
+    }
+
+    public function items()
+    {
+        return $this->hasMany(ProductItem::class);
     }
 }

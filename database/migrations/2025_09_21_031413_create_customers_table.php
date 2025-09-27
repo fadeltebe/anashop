@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
             $table->timestamps();
+            $table->softDeletes(); // Untuk mengaktifkan soft deletes
+
         });
     }
 

@@ -19,6 +19,8 @@ return new class extends Migration
             $table->text('description')->nullable(); // Optional
             $table->boolean('is_active')->default(true); // Banner aktif
             $table->timestamps();
+            $table->softDeletes(); // Untuk mengaktifkan soft deletes
+
         });
     }
 

@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('description')->nullable();   // Optional description
             $table->string('icon')->nullable();     // Emoji or image path
             $table->timestamps();
+            $table->softDeletes(); // Untuk mengaktifkan soft deletes
+
         });
     }
 

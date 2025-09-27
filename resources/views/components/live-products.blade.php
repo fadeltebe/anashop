@@ -4,15 +4,27 @@
 
             <!-- Header -->
             <div class="flex justify-between items-center mb-2 md:mb-4">
-                <h2 class="text-xl font-bold flex items-center gap-2">
-                    <img src="/images/star.gif" alt="flame" class="w-6 h-6">
-                    Produk Unggulan
+                <h2 class="font-bold flex items-center gap-2">
+                    <!-- Live badge (dot + LIVE) -->
+                    <span class="flex items-center gap-2 bg-red-600 text-white px-3 py-0 rounded-full font-bold animate-blink">
+                        <!-- dot -->
+                        <span class="relative flex">
+                            <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-white opacity-75"></span>
+                            <span class="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
+                        </span>
+                        <!-- teks -->
+                        <span>LIVE</span>
+                    </span>
                 </h2>
-                <a href="{{ route('flash-sale.all') }}" class="text-orange-600 hover:text-orange-700 text-sm">
+
+
+                <a href="{{ route('live.all') }}" class="text-orange-600 hover:text-orange-700 text-sm">
                     Lihat Semua →
                 </a>
             </div>
-            <div id="flashSaleContainer" class="flex overflow-x-auto space-x-3 scrollbar-hide pb-1 md:pb-2 cursor-grab">
+
+            <!-- List produk flash sale scroll horizontal -->
+            <div id="flashSaleContainer" class="flex overflow-x-auto space-x-3 scrollbar-hide pb-1 md:pb-2 cursor-grab" wire.poll.5s>
                 @foreach($flashSales as $product)
                 <a href="{{ url('product/'.$product->slug) }}" class="flex-shrink-0 w-40 md:w-48 bg-white rounded-lg p-2 md:p-3 shadow-sm hover:shadow-md transition-shadow border border-gray-200 block">
                     <img src="{{ $product->thumbnail ? asset('storage/'.$product->thumbnail) : asset('images/default-product.png') }}" alt="{{ $product->name }}" class="w-full h-28 md:h-32 object-cover rounded-md mb-2">
