@@ -4,20 +4,10 @@
 
             <!-- Header -->
             <div class="flex justify-between items-center mb-2 md:mb-4">
-                <h2 class="font-bold flex items-center gap-2">
-                    <!-- Live badge (dot + LIVE) -->
-                    <span class="flex items-center gap-2 bg-red-600 text-white px-3 py-0 rounded-full font-bold animate-blink">
-                        <!-- dot -->
-                        <span class="relative flex">
-                            <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-white opacity-75"></span>
-                            <span class="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
-                        </span>
-                        <!-- teks -->
-                        <span>LIVE</span>
-                    </span>
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <img src="/images/live.gif" alt="flame" class="h-6">
+                    Produk
                 </h2>
-
-
                 <a href="{{ route('live.all') }}" class="text-orange-600 hover:text-orange-700 text-sm">
                     Lihat Semua →
                 </a>

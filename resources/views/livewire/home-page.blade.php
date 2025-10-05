@@ -27,6 +27,4 @@
 {{-- Produk Rekomendasi (infinite scroll) --}}
 @livewire('recommended-product-scroll')
 
-
-
 @endsection

@@ -8,6 +8,7 @@ use App\Livewire\FeaturedProductsPage;
 use App\Http\Controllers\BannerController;
 use App\Livewire\CategoryProducts;
 use App\Livewire\LiveProducts;
+use App\Http\Controllers\ProductController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -22,6 +23,9 @@ Route::get('/flash-sale', FlashSalePage::class)->name('flash-sale.all');
 Route::get('/featured-products', FeaturedProductsPage::class)->name('featured.all');
 Route::get('/live-products', LiveProducts::class)->name('live.all');
 
-Route::get('/product/{slug}', ProductDetail::class)->name('product.detail');
+
+// Route::get('/product/{slug}', ProductDetail::class)->name('product.detail');
+// Jika pakai Controller biasa
+Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
 Route::get('/banner/{slug}', [BannerController::class, 'show'])->name('banner.show');
