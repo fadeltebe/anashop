@@ -3,7 +3,7 @@
         <div class="bg-white rounded-lg shadow-sm p-3 md:p-6">
             <div class="flex justify-between items-center mb-2 md:mb-4">
                 <h2 class="text-xl font-bold">Kategori Populer</h2>
-                <a href="#" class="text-orange-600 hover:text-orange-700 text-sm">Lihat Semua →</a>
+                <a href="{{ route('categories.index') }}" class="text-orange-600 hover:text-orange-700 text-sm">Lihat Semua →</a>
             </div>
 
             <div id="categoriesContainer" class="

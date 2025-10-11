@@ -2,7 +2,13 @@
     @forelse($products as $product)
     <a href="{{ url('product/'.$product->slug) }}" class="bg-white rounded-lg shadow p-3 hover:shadow-md transition">
         <div class="aspect-square">
-            <img src="{{ $product->thumbnail ? asset('storage/'.$product->thumbnail) : asset('images/default-product.png') }}" alt="{{ $product->name }}" class="object-cover w-full h-full">
+            @if($product->thumbnail)
+            <img src="{{ asset('storage/'.$product->thumbnail)}}" alt="{{ $product->name }}" class="object-cover w-full h-full">
+            @else
+            <svg class="w-24 h-24 mx-auto text-orange-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            @endif
         </div>
         <div class="mt-2">
             <h3 class="text-sm font-semibold line-clamp-2">{{ $product->name }}</h3>

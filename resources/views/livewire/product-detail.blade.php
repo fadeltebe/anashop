@@ -26,10 +26,18 @@
                 </div>
 
                 {{-- Price --}}
-                <div class="mb-4 pb-4 border-b border-gray-200">
+                <div class="">
                     <span class="text-3xl font-bold text-orange-600">
+                        Rp {{ number_format($product->discount_price ?? $product->price, 0, ',', '.') }}
+                    </span>
+                </div>
+                <div class="mb-4 pb-4 border-b border-gray-200">
+                    {{-- Original Price if discount exists --}}
+                    @if ($product->discount_price)
+                    <span class="text-lg text-gray-500 line-through">
                         Rp {{ number_format($product->price, 0, ',', '.') }}
                     </span>
+                    @endif
                 </div>
 
                 {{-- Category --}}

@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
-{{-- Panggil Livewire Component --}}
-@livewire('product-detail', ['slug' => $product->slug])
-@endsection
+<x-layouts.app>
+    {{-- Panggil Livewire Component --}}
+    @livewire('product-detail', ['slug' => $product->slug])
+</x-layouts.app>

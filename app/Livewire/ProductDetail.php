@@ -160,9 +160,27 @@ class ProductDetail extends Component
         }
     }
 
+    // public function addToCart()
+    // {
+    //     // Validasi stock
+    //     if ($this->stock <= 0) {
+    //         session()->flash('error', 'Produk sedang tidak tersedia');
+    //         return;
+    //     }
+
+    //     if ($this->quantity > $this->stock) {
+    //         session()->flash('error', 'Quantity melebihi stock yang tersedia');
+    //         return;
+    //     }
+
+    //     // Logic untuk menambah ke keranjang
+    //     // Implementasi sesuai kebutuhan aplikasi Anda
+
+    //     session()->flash('success', 'Produk berhasil ditambahkan ke keranjang');
+    // }
+
     public function addToCart()
     {
-        // Validasi stock
         if ($this->stock <= 0) {
             session()->flash('error', 'Produk sedang tidak tersedia');
             return;
@@ -173,10 +191,25 @@ class ProductDetail extends Component
             return;
         }
 
-        // Logic untuk menambah ke keranjang
-        // Implementasi sesuai kebutuhan aplikasi Anda
+        try {
+            $cartService = app(\App\Services\CartService::class);
+            $cartService->addItem(
+                $this->product->id,
+                $this->quantity,
+                $this->selectedVariant,
+                $this->selectedSize
+            );
 
-        session()->flash('success', 'Produk berhasil ditambahkan ke keranjang');
+            session()->flash('success', 'Produk berhasil ditambahkan ke keranjang');
+
+            // Emit event untuk update cart badge
+            $this->dispatch('cartUpdated');
+
+            // Reset quantity
+            $this->quantity = 1;
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal menambahkan produk ke keranjang');
+        }
     }
 
     public function getMainImageProperty()
@@ -185,6 +218,8 @@ class ProductDetail extends Component
             ? asset('storage/' . $this->availablePhotos->first())
             : asset('images/default-product.png');
     }
+
+
 
     public function render()
     {
