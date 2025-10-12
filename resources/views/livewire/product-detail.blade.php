@@ -131,8 +131,8 @@
                     <button wire:click="addToCart" {{ $stock <=0 ? 'disabled' : '' }} class="flex-1 bg-orange-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-all shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none">
                         🛒 Tambah ke Keranjang
                     </button>
-                    <a href="{{ route('home') }}" class="flex-1 text-center px-8 py-3 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all">
-                        ← Kembali
+                    <a wire:click="buyNow" class="flex-1 text-center px-8 py-3 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-all shadow-md hover:shadow-lg cursor-pointer">
+                        ⚡ Beli Sekarang
                     </a>
                 </div>
             </div>

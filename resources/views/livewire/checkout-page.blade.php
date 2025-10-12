@@ -35,13 +35,16 @@
         <div class="mb-6">
             <label class="block text-gray-700 font-semibold mb-2">Metode Pembayaran</label>
             <select wire:model="payment_method" class="w-full border rounded-lg px-3 py-2">
-                <option value="cod">Bayar di Tempat (COD)</option>
+                <option value="" selected disabled>-- Pilih Metode Pembayaran --</option>
+                <option value="qris">QRIS</option>
                 <option value="transfer">Transfer Bank</option>
+                <option value="e_wallet">E-Wallet</option>
+                <option value="cod">Cash on Delivery (COD)</option>
             </select>
         </div>
 
         <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold transition">
-            Lanjutkan Pembayaran
+            Checkout
         </button>
     </form>
 </div>

@@ -18,6 +18,11 @@ class Transaction extends Model
         'additional_fee',   // Biaya tambahan (delivery, packaging, dll)
         'grand_total',      // Total akhir setelah diskon dan biaya tambahan
         'status',           // Status transaksi (pending, paid, cancelled)
+        'payment_method',   // Metode pembayaran (qris, transfer, e_wallet, cod)
+        'payment_status',   // Status pembayaran (pending, completed, failed)
+        'payment_proof',    // Bukti pembayaran (file gambar)
+        'note',             // Catatan dari customer
+        'admin_note',       // Catatan dari admin
     ];
 
     /**

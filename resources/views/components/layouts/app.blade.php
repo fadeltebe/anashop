@@ -13,7 +13,7 @@
     @livewireStyles
 </head>
 
-<body class="bg-gray-100 font-sans antialiased">
+<body class="bg-gray-100 font-sans antialiased pb-20">
     <div class="min-h-screen">
         {{-- Header hanya sekali di sini --}}
         @include('components.header')

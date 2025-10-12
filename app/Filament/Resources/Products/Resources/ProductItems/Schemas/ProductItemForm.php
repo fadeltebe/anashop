@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\Products\Resources\ProductItems\Schemas;
 
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
 
 class ProductItemForm
 {
@@ -15,6 +16,13 @@ class ProductItemForm
                 TextInput::make('product_id')
                     ->required()
                     ->numeric(),
+                Select::make('owner')
+                    ->required()
+                    ->options([
+                        'ana' => 'Ana',
+                        'uma_alawi' => 'Uma Alawi',
+                    ])
+                    ->default('admin'),
                 TextInput::make('variant'),
                 TextInput::make('size'),
                 TextInput::make('price')

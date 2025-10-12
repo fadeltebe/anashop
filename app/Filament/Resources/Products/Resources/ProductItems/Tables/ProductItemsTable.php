@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Resources\ProductItems\Tables;
 
+use Dom\Text;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -15,6 +16,12 @@ class ProductItemsTable
     {
         return $table
             ->columns([
+                TextColumn::make('product.name')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('owner')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('variant')
                     ->searchable(),
                 TextColumn::make('size')

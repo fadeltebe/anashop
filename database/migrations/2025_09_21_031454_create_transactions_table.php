@@ -20,6 +20,8 @@ return new class extends Migration
             $table->decimal('additional_fee', 15, 2)->default(0); // Biaya tambahan seperti ongkos kirim atau packaging
             $table->decimal('grand_total', 15, 2)->default(0); // Total akhir yang harus dibayar: total - discount + additional_fee
             $table->string('status')->default('pending'); // Status transaksi: pending, paid, cancelled
+            $table->text('note')->nullable()->after('additional_fee');
+            $table->text('admin_note')->nullable()->after('note');
             $table->timestamps(); // created_at dan updated_at
             $table->softDeletes(); // Untuk mengaktifkan soft deletes
 

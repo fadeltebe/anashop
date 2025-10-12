@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Transactions;
 
 use App\Filament\Resources\Transactions\Pages\CreateTransaction;
+use App\Filament\Resources\Transactions\Pages\CreateTransactionLivewire;
 use App\Filament\Resources\Transactions\Pages\EditTransaction;
 use App\Filament\Resources\Transactions\Pages\ListTransactions;
 use App\Filament\Resources\Transactions\Schemas\TransactionForm;
@@ -13,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use App\Filament\Resources\Transactions\RelationManagers\ItemsRelationManager;
+
 
 class TransactionResource extends Resource
 {
@@ -33,7 +36,7 @@ class TransactionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            'items' => ItemsRelationManager::class,
         ];
     }
 
@@ -41,7 +44,8 @@ class TransactionResource extends Resource
     {
         return [
             'index' => ListTransactions::route('/'),
-            'create' => CreateTransaction::route('/create'),
+            // 'create' => CreateTransaction::route('/create'),
+            'create' => CreateTransactionLivewire::route('/create'),
             'edit' => EditTransaction::route('/{record}/edit'),
         ];
     }

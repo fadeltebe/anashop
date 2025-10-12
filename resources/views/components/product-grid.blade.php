@@ -3,7 +3,7 @@
     <a href="{{ url('product/'.$product->slug) }}" class="bg-white rounded-lg shadow p-3 hover:shadow-md transition">
         <div class="aspect-square">
             @if($product->thumbnail)
-            <img src="{{ asset('storage/'.$product->thumbnail)}}" alt="{{ $product->name }}" class="object-cover w-full h-full">
+            <img src="{{ asset('storage/'.$product->thumbnail)}}" alt="{{ $product->name }}" class="w-full h-28 md:h-32 object-cover rounded-md mb-2">
             @else
             <svg class="w-24 h-24 mx-auto text-orange-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />

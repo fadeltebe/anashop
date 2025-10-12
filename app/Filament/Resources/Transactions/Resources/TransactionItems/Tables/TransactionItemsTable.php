@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\TransactionItems\Tables;
+namespace App\Filament\Resources\Transactions\Resources\TransactionItems\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -14,26 +14,31 @@ class TransactionItemsTable
     {
         return $table
             ->columns([
-                TextColumn::make('transaction_id')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('product_id')
+                TextColumn::make('product.name')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('quantity')
+                    ->label('Jumlah')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('price')
-                    ->money()
+                    ->label('Harga')
+                    ->prefix('Rp ')
+                    ->numeric()
                     ->sortable(),
                 TextColumn::make('subtotal')
                     ->numeric()
+                    ->prefix('Rp ')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

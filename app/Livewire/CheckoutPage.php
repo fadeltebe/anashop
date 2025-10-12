@@ -15,7 +15,7 @@ class CheckoutPage extends Component
     public $name;
     public $phone;
     public $address;
-    public $payment_method = 'cod';
+    public $payment_method = '';
 
     protected $rules = [
         'name' => 'required|string|min:3',
@@ -32,28 +32,25 @@ class CheckoutPage extends Component
             $cartService = app(CartService::class);
             $cart = $cartService->getCartWithItems();
 
+            // 🔹 Jika keranjang kosong → kembalikan ke halaman cart
             if ($cart->items->isEmpty()) {
+                DB::rollBack();
                 session()->flash('error', 'Keranjang Anda kosong.');
-                return;
+                return redirect()->route('cart.index');
             }
 
-            // 🔹 Cek apakah sudah ada customer dengan nomor HP ini
+            // 🔹 Cari customer berdasarkan nomor HP
             $customer = Customer::where('phone', $this->phone)->first();
 
             if (! $customer) {
-                // Dapatkan kode terakhir (misal: CUST0005 → ambil angka 5)
                 $lastCustomer = Customer::orderBy('id', 'desc')->first();
                 $nextNumber = $lastCustomer
                     ? ((int) filter_var($lastCustomer->customer_code, FILTER_SANITIZE_NUMBER_INT) + 1)
                     : 1;
 
-                // Buat kode baru seperti CUST0006
                 $newCode = 'CUST' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-
-                // 🔹 Cek apakah user sedang login
                 $userId = Auth::check() ? Auth::id() : null;
 
-                // Buat customer baru
                 $customer = Customer::create([
                     'customer_code' => $newCode,
                     'name' => $this->name,
@@ -61,6 +58,74 @@ class CheckoutPage extends Component
                     'address' => $this->address,
                     'user_id' => $userId,
                 ]);
+            }
+
+            // 🔹 Cek transaksi aktif
+            $existingTransaction = Transaction::where('customer_id', $customer->id)
+                ->whereIn('status', ['pending', 'paid'])
+                ->latest()
+                ->first();
+
+            if ($existingTransaction && $existingTransaction->status === 'pending') {
+                $grandTotalTambah = 0;
+
+                foreach ($cart->items as $item) {
+                    $product = $item->product;
+
+                    // 🔹 Cek stok produk
+                    if ($product->stock < $item->quantity) {
+                        DB::rollBack();
+                        session()->flash('error', "Stok untuk {$product->name} tidak mencukupi.");
+                        return redirect()->route('cart.index');
+                    }
+
+                    // 🔹 Cek apakah produk sudah ada di transaksi
+                    $existingItem = TransactionItem::where('transaction_id', $existingTransaction->id)
+                        ->where('product_id', $item->product_id)
+                        ->first();
+
+                    if ($existingItem) {
+                        $newQty = $existingItem->quantity + $item->quantity;
+
+                        if ($product->stock < $newQty) {
+                            DB::rollBack();
+                            session()->flash('error', "Stok untuk {$product->name} tidak mencukupi untuk menambah {$item->quantity} pcs lagi.");
+                            return redirect()->route('cart.index');
+                        }
+
+                        $existingItem->update([
+                            'quantity' => $newQty,
+                            'subtotal' => $newQty * $item->price,
+                        ]);
+                    } else {
+                        TransactionItem::create([
+                            'transaction_id' => $existingTransaction->id,
+                            'product_id' => $item->product_id,
+                            'quantity' => $item->quantity,
+                            'price' => $item->price,
+                            'subtotal' => $item->price * $item->quantity,
+                        ]);
+                    }
+
+                    $product->decrement('stock', $item->quantity);
+                    $grandTotalTambah += $item->price * $item->quantity;
+                }
+
+                $existingTransaction->update([
+                    'grand_total' => $existingTransaction->grand_total + $grandTotalTambah,
+                ]);
+
+                DB::commit();
+                $cartService->clearCart();
+
+                session()->flash('success', 'Produk baru ditambahkan ke pesanan lama Anda.');
+                return redirect()->route('home');
+            }
+
+            if ($existingTransaction && $existingTransaction->status === 'paid') {
+                DB::rollBack();
+                session()->flash('error', 'Pesanan Anda sebelumnya sedang diproses. Harap selesaikan dulu sebelum membuat pesanan baru.');
+                return redirect()->route('cart.index');
             }
 
             // 🔹 Buat transaksi baru
@@ -74,8 +139,15 @@ class CheckoutPage extends Component
                 'status' => 'pending',
             ]);
 
-            // 🔹 Simpan item ke tabel transaction_items
             foreach ($cart->items as $item) {
+                $product = $item->product;
+
+                if ($product->stock < $item->quantity) {
+                    DB::rollBack();
+                    session()->flash('error', "Stok untuk {$product->name} tidak mencukupi.");
+                    return redirect()->route('cart.index');
+                }
+
                 TransactionItem::create([
                     'transaction_id' => $transaction->id,
                     'product_id' => $item->product_id,
@@ -83,11 +155,11 @@ class CheckoutPage extends Component
                     'price' => $item->price,
                     'subtotal' => $item->price * $item->quantity,
                 ]);
+
+                $product->decrement('stock', $item->quantity);
             }
 
-            // 🔹 Kosongkan keranjang
             $cartService->clearCart();
-
             DB::commit();
 
             session()->flash('success', 'Checkout berhasil! Pesanan Anda sedang diproses.');
@@ -95,8 +167,11 @@ class CheckoutPage extends Component
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Gagal melakukan checkout: ' . $e->getMessage());
+            return redirect()->route('cart.index');
         }
     }
+
+
 
     public function render()
     {

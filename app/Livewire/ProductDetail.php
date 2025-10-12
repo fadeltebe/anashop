@@ -212,6 +212,22 @@ class ProductDetail extends Component
         }
     }
 
+    public function buyNow()
+    {
+        if ($this->stock <= 0) {
+            session()->flash('error', 'Stok produk tidak mencukupi.');
+            return;
+        }
+
+        // 🔹 Tambahkan produk ke keranjang (gunakan fungsi yang sudah ada)
+        $this->addToCart();
+
+        // 🔹 Redirect langsung ke halaman checkout
+        return redirect()->route('checkout');
+    }
+
+
+
     public function getMainImageProperty()
     {
         return $this->availablePhotos->first()
