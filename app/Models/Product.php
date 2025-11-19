@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Product extends Model
 {
@@ -79,5 +80,13 @@ class Product extends Model
     public function items()
     {
         return $this->hasMany(ProductItem::class);
+    }
+
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(ProductCollection::class, 'product_collection_items')
+            ->withPivot('sort_order')
+            ->withTimestamps()
+            ->orderBy('product_collection_items.sort_order');
     }
 }
