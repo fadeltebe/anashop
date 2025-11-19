@@ -1,4 +1,4 @@
 <x-filament-panels::page>
     {{-- Page content --}}
-    @livewire('create-transaksi')
+    @livewire('create-transaction')
 </x-filament-panels::page>
