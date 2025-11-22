@@ -21,8 +21,6 @@ return new class extends Migration
             $table->timestamp('start_at')->nullable();
             $table->timestamp('end_at')->nullable();
             $table->integer('sort_order')->default(0);
-            $table->integer('max_items')->default(12);
-            $table->string('display_type')->default('grid'); // grid, carousel, list
             $table->timestamps();
 
             $table->index(['is_active', 'sort_order']);
@@ -35,6 +33,7 @@ return new class extends Migration
             $table->foreignId('collection_id')->constrained('product_collections')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->integer('sort_order')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
 
             $table->unique(['collection_id', 'product_id']);

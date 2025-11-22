@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Carbon\Carbon;
+use App\Models\ProductCollectionItem;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProductCollection extends Model
 {
@@ -32,12 +34,34 @@ class ProductCollection extends Model
         'max_items' => 'integer',
     ];
 
+    /**
+     * Relasi many-to-many dengan Product (via pivot table)
+     * PENTING: Pakai 'collection_id' sesuai migration!
+     */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'product_collection_items')
-            ->withPivot('sort_order')
+        return $this->belongsToMany(Product::class, 'product_collection_items', 'collection_id', 'product_id')
+            ->withPivot('sort_order', 'is_active')
             ->withTimestamps()
             ->orderBy('product_collection_items.sort_order');
+    }
+
+    /**
+     * Relasi hasMany ke ProductCollectionItem
+     * PENTING: Foreign key 'collection_id' sesuai migration!
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(ProductCollectionItem::class, 'collection_id')
+            ->orderBy('sort_order');
+    }
+
+    /**
+     * Alias untuk items()
+     */
+    public function productCollectionItems(): HasMany
+    {
+        return $this->items();
     }
 
     public function scopeActive($query)
@@ -115,6 +139,6 @@ class ProductCollection extends Model
 
     public function getLimitedProducts()
     {
-        return $this->products()->limit($this->max_items)->get();
+        return $this->products()->limit($this->max_items ?? 12)->get();
     }
 }

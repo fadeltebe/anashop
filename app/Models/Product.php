@@ -82,11 +82,17 @@ class Product extends Model
         return $this->hasMany(ProductItem::class);
     }
 
-    public function collections(): BelongsToMany
+
+    public function collections()
     {
-        return $this->belongsToMany(ProductCollection::class, 'product_collection_items')
-            ->withPivot('sort_order')
+        return $this->belongsToMany(ProductCollection::class, 'product_collection_items', 'product_id', 'collection_id')
+            ->withPivot('sort_order', 'is_active')
             ->withTimestamps()
             ->orderBy('product_collection_items.sort_order');
+    }
+
+    public function collectionItems()
+    {
+        return $this->hasMany(ProductCollectionItem::class, 'product_id');
     }
 }
