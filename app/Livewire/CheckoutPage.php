@@ -21,6 +21,8 @@ class CheckoutPage extends Component
         'name' => 'required|string|min:3',
         'phone' => 'required|string|min:8',
         'address' => 'required|string|min:5',
+        'payment_method' => 'required|string|in:credit_card,debit_card,cash_on_delivery',
+
     ];
 
     public function submit()

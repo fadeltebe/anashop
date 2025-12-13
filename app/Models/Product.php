@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -22,15 +23,32 @@ class Product extends Model
         'thumbnail',
         'photos', // JSON field
         'stock',
-        'is_featured',
-        'is_flash_sale',
         'is_published',
-        'is_live',
         'weight',
         'rating',
         'rating_count',
         'total_sales',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($product) {
+            if (empty($product->slug)) {
+                $product->slug = Str::slug($product->name);
+            }
+
+            // Pastikan slug unique dengan menambah counter jika duplikat
+            $originalSlug = $product->slug;
+            $count = 1;
+
+            while (static::where('slug', $product->slug)->exists()) {
+                $product->slug = $originalSlug . '-' . $count;
+                $count++;
+            }
+        });
+    }
 
     protected function casts(): array
     {

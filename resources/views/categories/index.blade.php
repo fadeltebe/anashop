@@ -8,7 +8,7 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
             @foreach ($categories as $category)
             <a href="{{ route('categories.show', $category->slug) }}" class="block bg-white shadow rounded-xl p-4 hover:shadow-lg transition">
-                <img src="{{ asset('storage/' . $category->icon) ?? 'https://via.placeholder.com/150' }}" alt="{{ $category->name }}" class="w-full h-32 object-cover rounded-lg mb-3">
+                <img src="{{ asset('storage/' . $category->icon) ?? 'https://via.placeholder.com/150' }}" alt="{{ $category->name }}" class=" h-32 object-cover rounded-lg mb-3 text-center mx-auto">
                 <h2 class="font-semibold text-gray-800 text-center">{{ $category->name }}</h2>
             </a>
             @endforeach

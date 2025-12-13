@@ -3,8 +3,7 @@
 <div class="flex items-center text-xs">
     <div class="flex">
         {{-- Bintang penuh --}}
-        @for($i = 0; $i < floor($value); $i++) ⭐ @endfor {{-- Setengah bintang --}} @if($value - floor($value)>= 0.5)
-            🌟
+        @for($i = 0; $i < floor($value); $i++) ⭐ @endfor {{-- Setengah bintang --}} @if($value - floor($value)>= 0.5) 🌟
             @php $stars = floor($value) + 1; @endphp
             @else
             @php $stars = floor($value); @endphp

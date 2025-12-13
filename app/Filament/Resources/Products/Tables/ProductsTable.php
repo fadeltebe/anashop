@@ -32,18 +32,19 @@ class ProductsTable
                             ->width(50),
 
 
-                        TextColumn::make('name')
-                            ->searchable(),
+
 
                         TextColumn::make('category.name')
                             ->sortable()
                             ->badge(),
-
+                        TextColumn::make('code')
+                            ->searchable(),
                     ]),
 
                     Stack::make([
-                        TextColumn::make('code')
+                        TextColumn::make('name')
                             ->searchable(),
+
                         TextColumn::make('price')
                             ->numeric()
                             ->prefix('Rp ')
@@ -103,27 +104,29 @@ class ProductsTable
                                 ->label('') // header kosong
                                 ->formatStateUsing(fn($id, $record) => str_pad('Tampil?', 15, ' ', STR_PAD_RIGHT))
                                 ->extraCellAttributes(['class' => 'text-right pr-2']),
-                            TextColumn::make('id')
-                                ->label('')
-                                ->formatStateUsing(fn($id, $record) => str_pad('Live?', 15, ' ', STR_PAD_RIGHT))
-                                ->extraCellAttributes(['class' => 'text-right pr-2']),
-                            TextColumn::make('id')
-                                ->label('')
-                                ->formatStateUsing(fn($id, $record) => str_pad('Unggulan?', 15, ' ', STR_PAD_RIGHT))
-                                ->extraCellAttributes(['class' => 'text-right pr-2']),
-                            TextColumn::make('id')
-                                ->label('')
-                                ->formatStateUsing(fn($id, $record) => str_pad('Sale?', 15, ' ', STR_PAD_RIGHT))
-                                ->extraCellAttributes(['class' => 'text-right pr-2']),
+                            ToggleColumn::make('is_published')->label(''),
+
+                            // TextColumn::make('id')
+                            //     ->label('')
+                            //     ->formatStateUsing(fn($id, $record) => str_pad('Live?', 15, ' ', STR_PAD_RIGHT))
+                            //     ->extraCellAttributes(['class' => 'text-right pr-2']),
+                            // TextColumn::make('id')
+                            //     ->label('')
+                            //     ->formatStateUsing(fn($id, $record) => str_pad('Unggulan?', 15, ' ', STR_PAD_RIGHT))
+                            //     ->extraCellAttributes(['class' => 'text-right pr-2']),
+                            // TextColumn::make('id')
+                            //     ->label('')
+                            //     ->formatStateUsing(fn($id, $record) => str_pad('Sale?', 15, ' ', STR_PAD_RIGHT))
+                            //     ->extraCellAttributes(['class' => 'text-right pr-2']),
                         ]),
 
                         // KANAN: toggles interaktif (tanpa label)
-                        Stack::make([
-                            ToggleColumn::make('is_published')->label(''),
-                            ToggleColumn::make('is_live')->label(''),
-                            ToggleColumn::make('is_featured')->label(''),
-                            ToggleColumn::make('is_flash_sale')->label(''),
-                        ]),
+                        // Stack::make([
+                        //     ToggleColumn::make('is_published')->label(''),
+                        //     // ToggleColumn::make('is_live')->label(''),
+                        //     // ToggleColumn::make('is_featured')->label(''),
+                        //     // ToggleColumn::make('is_flash_sale')->label(''),
+                        // ]),
                     ])->columnSpan(2), // agar tidak terlalu lebar
                 ])->columnSpan(12), // full width
             ])
@@ -137,6 +140,8 @@ class ProductsTable
                 // BulkActionGroup::make([
                 //     DeleteBulkAction::make(),
                 // ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc')
+        ;
     }
 }

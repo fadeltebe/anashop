@@ -53,6 +53,6 @@ class TransactionsTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])->defaultSort('transaction_date', 'desc');
     }
 }

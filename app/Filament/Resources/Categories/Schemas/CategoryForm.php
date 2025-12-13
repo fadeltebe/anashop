@@ -7,6 +7,7 @@ use Filament\Forms\Components\Toggle;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
+use Illuminate\Support\Str;
 
 class CategoryForm
 {
@@ -15,16 +16,38 @@ class CategoryForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->required(),
-                TextInput::make('slug')
-                    ->required(),
-                Toggle::make('is_active')
-                    ->required(),
-                TextInput::make('total_products')
                     ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function (string $operation, $state, $set) {
+                        if ($operation === 'create') {
+                            $set('slug', Str::slug($state));
+                        }
+                    }),
+
+                TextInput::make('slug')
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->alphaDash()
+                    ->helperText('Slug akan otomatis dibuat dari nama kategori.')
+                    ->readOnly()
+                    ->hidden(),
+
+                TextInput::make('total_products')
                     ->numeric()
-                    ->default(0),
-                TextInput::make('description'),
+                    ->default(0)
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->helperText('Otomatis dihitung dari jumlah produk.'),
+
+                TextInput::make('description')
+                    ->maxLength(255),
+
+                Toggle::make('is_active')
+                    ->required()
+                    ->default(true)
+                    ->label('Aktifkan Kategori'),
+
+
                 FileUpload::make('icon')
                     ->directory('categories')
                     ->image()
@@ -32,11 +55,9 @@ class CategoryForm
                     ->enableDownload()
                     ->imageEditor()
                     ->disk('public')
-                // ->deleteUploadedFileUsing(function ($file) {
-                //     Storage::disk('public')->delete($file);
-                // })
-                ,
-
+                    ->maxSize(2048)
+                    ->imageResizeMode('cover')
+                    ->imageCropAspectRatio('1:1'),
             ]);
     }
 }

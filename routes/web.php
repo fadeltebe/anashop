@@ -5,12 +5,11 @@ use App\Livewire\HomePage;
 use App\Livewire\CheckoutPage;
 use App\Livewire\LiveProducts;
 use App\Livewire\ShoppingCart;
-use App\Livewire\FlashSalePage;
 use App\Livewire\ProductDetail;
 use App\Livewire\CollectionPage;
 use App\Livewire\CategoryProducts;
 use Illuminate\Support\Facades\Route;
-use App\Livewire\FeaturedProductsPage;
+
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\BannerController;
@@ -32,9 +31,6 @@ Route::get('/', HomePage::class)->name('home');
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 
-Route::get('/flash-sale', FlashSalePage::class)->name('flash-sale.all');
-Route::get('/featured-products', FeaturedProductsPage::class)->name('featured.all');
-Route::get('/live-products', LiveProducts::class)->name('live.all');
 Route::get('/collections/{slug}', [ProductCollectionController::class, 'show'])
     ->name('collection.show');
 Route::get('/collections/{slug}', CollectionPage::class)

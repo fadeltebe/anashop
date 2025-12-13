@@ -10,30 +10,80 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 use SebastianBergmann\CodeUnit\FileUnit;
 
+use function Laravel\Prompts\select;
+
 class ProductForm
 {
     public static function configure(Schema $schema): Schema
     {
+
         return $schema
             ->components([
+
+                Select::make('owner')
+                    ->options([
+                        'Uma Alawi' => 'Uma Alawi',
+                        'Mama Zahra' => 'Mama Zahra',
+                    ])
+                    ->required()
+                    ->default('Mama Zahra'),
                 Select::make('category_id')
                     ->relationship('category', 'name')
                     ->searchable()
                     ->preload()
-                    ->required(),
-                TextInput::make('code')
-                    ->required(),
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function ($state, $get, $set) {
+                        // Generate ulang code saat kategori berubah
+                        $name = $get('name');
+                        if ($name) {
+                            $code = self::generateProductCodeWithCategory($state, $name);
+                            $set('code', $code);
+                        }
+                    }),
+
+
+
                 TextInput::make('name')
-                    ->required(),
+                    ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function (string $operation, $state, $get, $set) {
+                        if ($operation === 'create') {
+                            // Generate slug
+                            $set('slug', \Illuminate\Support\Str::slug($state));
+
+                            // Generate code dengan kategori
+                            $categoryId = $get('category_id');
+                            if ($categoryId) {
+                                $code = self::generateProductCodeWithCategory($categoryId, $state);
+                                $set('code', $code);
+                            }
+                        }
+                    })
+                    ->maxLength(255),
+
+                TextInput::make('code')
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->disabled()
+                    ->dehydrated()
+                    ->helperText('Format: [Kategori]-[Produk][0001]')
+                    ->maxLength(50),
+
+
                 TextInput::make('slug')
                     ->required()
-                    ->unique(ignoreRecord: true),
+                    ->unique(ignoreRecord: true)
+                    ->alphaDash()
+                    ->helperText('Slug akan otomatis dibuat dari nama produk.')
+                    ->readonly(),
                 TextInput::make('price')
                     ->required()
                     ->numeric()
                     ->prefix('Rp '),
                 TextInput::make('discount_price')
-                    ->numeric(),
+                    ->numeric()
+                    ->prefix('Rp '),
                 TextInput::make('stock')
                     ->required()
                     ->numeric(),
@@ -44,7 +94,8 @@ class ProductForm
                 TextInput::make('weight')
                     ->required()
                     ->numeric()
-                    ->default(0),
+                    ->default(0)
+                    ->suffix('gram'),
                 TextInput::make('rating')
                     ->required()
                     ->numeric(),
@@ -73,12 +124,43 @@ class ProductForm
                     ->columnSpanFull(),
                 Toggle::make('is_published')
                     ->required(),
-                Toggle::make('is_live')
-                    ->required(),
-                Toggle::make('is_featured')
-                    ->required(),
-                Toggle::make('is_flash_sale')
-                    ->required(),
+
             ]);
+    }
+
+    protected static function generateProductCodeWithCategory(int $categoryId, string $productName): string
+    {
+        // Ambil kode kategori
+        $category = \App\Models\Category::find($categoryId);
+        $categoryCode = strtoupper(substr($category->name, 0, 3));
+
+        // Ambil inisial produk (3 huruf pertama dari setiap kata)
+        $words = explode(' ', $productName);
+        $productCode = '';
+
+        foreach (array_slice($words, 0, 3) as $word) {
+            $productCode .= strtoupper(substr($word, 0, 1));
+        }
+
+        if (strlen($productCode) < 3) {
+            $productCode = strtoupper(substr($productName, 0, 3));
+        }
+
+        $prefix = $categoryCode . '-' . $productCode;
+
+        // Cari nomor urut terakhir
+        $lastProduct = \App\Models\Product::where('code', 'like', $prefix . '%')
+            ->orderBy('code', 'desc')
+            ->first();
+
+        if ($lastProduct) {
+            preg_match('/(\d+)$/', $lastProduct->code, $matches);
+            $lastNumber = isset($matches[1]) ? intval($matches[1]) : 0;
+            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $newNumber = '0001';
+        }
+
+        return $prefix . $newNumber;
     }
 }

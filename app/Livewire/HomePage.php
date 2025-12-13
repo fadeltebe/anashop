@@ -73,9 +73,9 @@ class HomePage extends Component
             // 🔥 Anda bisa hapus liveProducts/flashSales/featuredProducts
             // karena seluruh logikanya pindah ke ProductCollection
             // tetapi untuk sementara saya biarkan agar tidak error
-            'liveProducts' => Product::live()->latest()->take(6)->get(),
-            'flashSales' => Product::flashSale()->latest()->take(6)->get(),
-            'featuredProducts' => Product::featured()->take(6)->get(),
+            // 'liveProducts' => Product::live()->latest()->take(6)->get(),
+            // 'flashSales' => Product::flashSale()->latest()->take(6)->get(),
+            // 'featuredProducts' => Product::featured()->take(6)->get(),
 
             // Jika view Anda masih butuh collections, kirimkan
             'collections' => $this->collections,
