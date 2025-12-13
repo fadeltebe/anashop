@@ -7,6 +7,7 @@ use App\Livewire\LiveProducts;
 use App\Livewire\ShoppingCart;
 use App\Livewire\FlashSalePage;
 use App\Livewire\ProductDetail;
+use App\Livewire\CollectionPage;
 use App\Livewire\CategoryProducts;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\FeaturedProductsPage;
@@ -19,6 +20,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\ProductCollectionController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -33,6 +35,10 @@ Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('cat
 Route::get('/flash-sale', FlashSalePage::class)->name('flash-sale.all');
 Route::get('/featured-products', FeaturedProductsPage::class)->name('featured.all');
 Route::get('/live-products', LiveProducts::class)->name('live.all');
+Route::get('/collections/{slug}', [ProductCollectionController::class, 'show'])
+    ->name('collection.show');
+Route::get('/collections/{slug}', CollectionPage::class)
+    ->name('collection.show');
 
 
 // Route::get('/product/{slug}', ProductDetail::class)->name('product.detail');

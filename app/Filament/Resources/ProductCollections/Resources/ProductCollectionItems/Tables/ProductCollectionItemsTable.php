@@ -25,8 +25,7 @@ class ProductCollectionItemsTable
                 ImageColumn::make('product.thumbnail')
                     ->disk('public')
                     ->label('Gambar')
-                    ->circular()
-                    ->defaultImageUrl(url('/images/placeholder.png')),
+                    ->circular(),
 
                 TextColumn::make('product.name')
                     ->label('Nama Produk')

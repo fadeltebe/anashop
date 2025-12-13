@@ -1,27 +1,21 @@
 <div>
+
     {{-- Hero Section --}}
     @include('components.hero')
 
-    {{-- Kategori --}}
+    {{-- Categories --}}
     @if($categories->isNotEmpty())
     @include('components.categories', ['categories' => $categories])
     @endif
 
-    {{-- Produk Live --}}
-    @if($liveProducts->isNotEmpty())
-    @include('components.live-products', ['products' => $liveProducts])
-    @endif
+    {{-- Dynamic Product Collections --}}
+    @foreach($collections as $collection)
+    @include('components.collection-block', [
+    'collection' => $collection
+    ])
+    @endforeach
 
-    {{-- Flash Sale --}}
-    @if($flashSales->isNotEmpty())
-    @include('components.flash-sale', ['products' => $flashSales])
-    @endif
-
-    {{-- Produk Unggulan --}}
-    @if($featuredProducts->isNotEmpty())
-    @include('components.featured-products', ['products' => $featuredProducts])
-    @endif
-
-    {{-- Produk Rekomendasi --}}
+    {{-- Recommended Product Scroll --}}
     @livewire('recommended-product-scroll')
+
 </div>

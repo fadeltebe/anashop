@@ -12,12 +12,12 @@
                 scrollbar-hide
             ">
                 @foreach($categories as $category)
-                <div class="flex-shrink-0 w-20 md:w-full bg-white rounded-lg p-2 md:p-3
-                    shadow-sm hover:shadow-md transition-shadow cursor-pointer
-                    text-center border border-gray-200">
+                <a href="{{ route('categories.show', $category->slug) }}" class="flex-shrink-0 w-20 md:w-full bg-white rounded-lg p-2 md:p-3
+          shadow-sm hover:shadow-md transition-shadow cursor-pointer
+          text-center border border-gray-200 block">
                     <div class="mb-1 md:mb-2 flex justify-center">
                         @if($category->icon)
-                        <img src="{{ asset('storage/' . $category->icon) }}" alt="{{ $category->nama }}" class="w-10 h-10 md:w-12 md:h-12 object-contain">
+                        <img src="{{ asset('storage/' . $category->icon) }}" alt="{{ $category->name }}" class="w-10 h-10 md:w-12 md:h-12 object-contain">
                         @else
                         <div class="text-2xl md:text-3xl">📦</div>
                         @endif
@@ -25,7 +25,7 @@
                     <h3 class="font-medium text-gray-700 text-xs md:text-sm line-clamp-2">
                         {{ $category->name }}
                     </h3>
-                </div>
+                </a>
                 @endforeach
             </div>
         </div>

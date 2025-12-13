@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\ProductCollections\Schemas;
 
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\DateTimePicker;
 
 class ProductCollectionForm
 {
@@ -18,7 +19,13 @@ class ProductCollectionForm
                     ->required(),
                 TextInput::make('slug')
                     ->required(),
-                TextInput::make('icon'),
+                FileUpload::make('icon')
+                    ->image()
+                    ->maxSize(1024) // Maksimum 1MB
+                    ->directory('product-collection-icons')
+                    ->disk('public')
+                    ->visibility('public')
+                    ->columnSpanFull(),
                 Textarea::make('description')
                     ->columnSpanFull(),
                 Toggle::make('is_active')
