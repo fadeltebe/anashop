@@ -3,6 +3,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div class="lg:col-span-3 space-y-8">
 
+
                 <x-filament::section class="shadow-lg border-t-4 border-primary-500 rounded-xl">
                     <div class="relative">
                         <x-filament::input type="text" wire:model.live.debounce.300ms="search_product" wire:focus="focusProduct" placeholder="🔍 Cari produk berdasarkan nama, SKU, atau barcode..." autocomplete="off" class="text-lg py-0" />
@@ -228,4 +229,5 @@
 
         </div>
     </form>
+
 </div>

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
+use Dom\Text;
 use Filament\Tables\Table;
 use Filament\Actions\EditAction;
 // use Filament\Tables\Columns\Column;
@@ -31,17 +32,19 @@ class ProductsTable
                             ->height(50)
                             ->width(50),
 
-
-
-
                         TextColumn::make('category.name')
                             ->sortable()
                             ->badge(),
-                        TextColumn::make('code')
-                            ->searchable(),
+
+                        TextColumn::make('owner')
+                            ->searchable()
+                            ->badge(),
+
                     ]),
 
                     Stack::make([
+                        TextColumn::make('code')
+                            ->searchable(),
                         TextColumn::make('name')
                             ->searchable(),
 
@@ -53,10 +56,7 @@ class ProductsTable
                             ->numeric()
                             ->prefix('Rp ')
                             ->sortable(),
-                        TextColumn::make('stock')
-                            ->numeric()
-                            ->sortable()
-                            ->formatStateUsing(fn($state) => str_pad('Stok', 15, ' ', STR_PAD_RIGHT) . $state),
+
 
                     ])
                     // ->extraHeaderAttributes([
@@ -100,10 +100,16 @@ class ProductsTable
                     Split::make([
                         // KIRI: label (gunakan kolom dummy, pakai 'id' sebagai sumber state agar ada nilai)
                         Stack::make([
-                            TextColumn::make('id') // pakai kolom yang pasti ada
-                                ->label('') // header kosong
-                                ->formatStateUsing(fn($id, $record) => str_pad('Tampil?', 15, ' ', STR_PAD_RIGHT))
-                                ->extraCellAttributes(['class' => 'text-right pr-2']),
+                            TextColumn::make('stock')
+                                ->numeric()
+                                ->sortable()
+                                ->formatStateUsing(fn($state) => str_pad('Stok', 15, ' ', STR_PAD_RIGHT) . $state),
+
+                            // TextColumn::make('id') // pakai kolom yang pasti ada
+                            //     ->label('') // header kosong
+                            //     ->formatStateUsing(fn($id, $record) => str_pad('Tampil?', 15, ' ', STR_PAD_RIGHT))
+                            //     ->extraCellAttributes(['class' => 'text-right pr-2']),
+
                             ToggleColumn::make('is_published')->label(''),
 
                             // TextColumn::make('id')
