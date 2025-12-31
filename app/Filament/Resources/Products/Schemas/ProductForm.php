@@ -88,26 +88,30 @@ class ProductForm
                     ->required()
                     ->numeric(),
                 TextInput::make('total_sales')
-                    ->required()
+                    // ->required()
                     ->numeric()
                     ->default(0),
                 TextInput::make('weight')
-                    ->required()
+                    // ->required()
                     ->numeric()
                     ->default(0)
                     ->suffix('gram'),
                 TextInput::make('rating')
-                    ->required()
+                    // ->required()
                     ->numeric(),
                 TextInput::make('rating_count')
-                    ->required()
+                    // ->required()
                     ->numeric()
                     ->default(0),
                 Textarea::make('description')
                     ->columnSpanFull(),
                 FileUpload::make('thumbnail')
                     ->image()
-                    ->maxSize(1024) // Maksimum 1MB
+                    ->maxSize(2048) // Maksimum 1MB
+                    ->imageResizeMode('cover')
+                    ->imageCropAspectRatio('1:1')
+                    ->imageResizeTargetWidth('800')
+                    ->imageResizeTargetHeight('800')
                     ->directory('product-thumbnails')
                     ->disk('public')
                     ->visibility('public')

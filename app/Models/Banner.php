@@ -20,6 +20,6 @@ class Banner extends Model
     // Relasi ke produk (many-to-many)
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'banner_products', 'banner_id', 'product_id');
+        return $this->belongsToMany(Product::class, 'banner_product', 'banner_id', 'product_id');
     }
 }

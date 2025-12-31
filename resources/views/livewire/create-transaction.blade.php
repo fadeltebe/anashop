@@ -7,7 +7,7 @@
                 <!-- Product Search -->
                 <x-filament::section class="shadow-lg border-t-4 border-primary-500 rounded-xl">
                     <div class="relative">
-                        <x-filament::input type="text" wire:model.live.debounce.300ms="search_product" wire:focus="focusProduct" placeholder="🔍 Cari produk..." autocomplete="off" class="text-base lg:text-lg py-2 lg:py-0" />
+                        <x-filament::input type="text" wire:model.live.debounce.300ms="search_product" wire:focus="focusProduct" placeholder="🔍 Cari produk..." autocomplete="off" class="text-base lg:text-lg py-0 lg:py-0" />
 
                         @if($this->getProducts()->count() > 0)
                         <div class="absolute w-full mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 max-h-60 lg:max-h-96 overflow-y-auto">
@@ -84,8 +84,11 @@
                                             {{ $item['quantity'] }}
                                         </span>
 
-                                        <button wire:click="tambahQuantity({{ $index }})" type="button" class="w-6 h-6 flex items-center justify-center bg-success-500 text-white rounded hover:bg-success-600 transition">
-                                            <x-filament::icon icon="heroicon-m-plus" class="w-3 h-3" />
+                                        <!-- ✅ Gunakan class Filament -->
+                                        <button wire:click="tambahQuantity({{ $index }})" type="button" class="w-6 h-6 flex items-center justify-center bg-success-600 dark:bg-success-500 text-white rounded hover:bg-success-700 dark:hover:bg-success-600 transition">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                            </svg>
                                         </button>
                                     </div>
 
