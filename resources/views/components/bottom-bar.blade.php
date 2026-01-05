@@ -25,10 +25,10 @@
     </a>
 
     <!-- Profil -->
-    <a href="{{ route('profile') }}" class="flex flex-col items-center hover:text-orange-500 transition">
+    <!-- <a href="{{ route('profile') }}" class="flex flex-col items-center hover:text-orange-500 transition">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12a5 5 0 100-10 5 5 0 000 10zm-7 9a9 9 0 0114 0H5z" />
         </svg>
         <span class="text-xs">Profil</span>
-    </a>
+    </a> -->
 </div>

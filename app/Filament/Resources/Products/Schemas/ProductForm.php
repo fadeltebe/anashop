@@ -28,6 +28,7 @@ class ProductForm
                     ->required()
                     ->default('Mama Zahra'),
                 Select::make('category_id')
+                    ->label('Kategori Produk')
                     ->relationship('category', 'name')
                     ->searchable()
                     ->preload()
@@ -64,6 +65,7 @@ class ProductForm
 
                 TextInput::make('code')
                     ->required()
+                    ->label('Kode Produk')
                     ->unique(ignoreRecord: true)
                     ->disabled()
                     ->dehydrated()
@@ -75,48 +77,55 @@ class ProductForm
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->alphaDash()
+                    ->hidden()
                     ->helperText('Slug akan otomatis dibuat dari nama produk.')
                     ->readonly(),
                 TextInput::make('price')
+                    ->label('Harga Normal')
                     ->required()
                     ->numeric()
                     ->prefix('Rp '),
                 TextInput::make('discount_price')
+                    ->label('Harga Diskon')
                     ->numeric()
                     ->prefix('Rp '),
                 TextInput::make('stock')
                     ->required()
+                    ->default(10)
                     ->numeric(),
                 TextInput::make('total_sales')
+                    ->label('Total Terjual')
                     // ->required()
                     ->numeric()
                     ->default(0),
                 TextInput::make('weight')
+                    ->label('Berat Produk')
                     // ->required()
                     ->numeric()
-                    ->default(0)
+                    ->default(200)
                     ->suffix('gram'),
                 TextInput::make('rating')
+                    ->default(5)
                     // ->required()
                     ->numeric(),
                 TextInput::make('rating_count')
                     // ->required()
                     ->numeric()
-                    ->default(0),
+                    ->default(5),
                 Textarea::make('description')
+                    ->label('Deskripsi Produk')
                     ->columnSpanFull(),
                 FileUpload::make('thumbnail')
+                    ->label('Foto Utama')
                     ->image()
+                    ->imageEditor()
                     ->maxSize(2048) // Maksimum 1MB
-                    ->imageResizeMode('cover')
-                    ->imageCropAspectRatio('1:1')
-                    ->imageResizeTargetWidth('800')
-                    ->imageResizeTargetHeight('800')
                     ->directory('product-thumbnails')
                     ->disk('public')
                     ->visibility('public')
                     ->columnSpanFull(),
                 FileUpload::make('photos')
+                    ->label('Foto Tambahan')
                     ->image()
                     ->maxSize(2048) // Maksimum 2MB per foto
                     ->directory('product-photos')
@@ -127,6 +136,8 @@ class ProductForm
                     ->visibility('public')
                     ->columnSpanFull(),
                 Toggle::make('is_published')
+                    ->label('Tampilkan Produk?')
+                    ->default(true)
                     ->required(),
 
             ]);

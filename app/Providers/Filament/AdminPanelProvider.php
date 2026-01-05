@@ -27,7 +27,14 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+
             ->login()
+            // Menambahkan logo utama
+            ->brandLogo(asset('images/logo.png'))
+
+            ->brandLogoHeight('3rem')
+
+            ->brandName('Almahyra Collection')
 
             ->colors([
                 'primary' => Color::Amber,
