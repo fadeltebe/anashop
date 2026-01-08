@@ -40,7 +40,8 @@ class ProductItemForm
                     ->numeric()
                     ->default(0),
                 FileUpload::make('image')
-                    ->image(),
+                    ->image()
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
             ]);
     }
 }
