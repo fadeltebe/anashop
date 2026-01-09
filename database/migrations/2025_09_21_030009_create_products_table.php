@@ -26,7 +26,8 @@ return new class extends Migration
 
             // Harga (Menggunakan DECIMAL untuk presisi mata uang)
             // 10 digit total, 2 di belakang koma (contoh: 99,999,999.99)
-            $table->decimal('price', 10, 2);
+            $table->decimal('cost_price', 10, 2);
+            $table->decimal('cell_price', 10, 2);
             $table->decimal('discount_price', 10, 2)->nullable(); // Harga setelah diskon
 
             // Inventaris & Penjualan

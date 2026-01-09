@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use Dom\Text;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -80,6 +81,11 @@ class ProductForm
                     ->hidden()
                     ->helperText('Slug akan otomatis dibuat dari nama produk.')
                     ->readonly(),
+                TextInput::make('cost_price')
+                    ->label('Harga Modal')
+                    ->required()
+                    ->numeric()
+                    ->prefix('Rp '),
                 TextInput::make('price')
                     ->label('Harga Normal')
                     ->required()
