@@ -48,7 +48,7 @@ class ProductsTable
                         TextColumn::make('name')
                             ->searchable(),
 
-                        TextColumn::make('price')
+                        TextColumn::make('product.items->sale_price')
                             ->numeric()
                             ->prefix('Rp ')
                             ->sortable(),

@@ -13,7 +13,7 @@ use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Filament\Resources\Products\Tables\ProductsTable;
-use App\Filament\Resources\Products\RelationManagers\ItemsRelationManager;
+
 
 class ProductResource extends Resource
 {
@@ -34,7 +34,7 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            'items' => ItemsRelationManager::class,
+            //
         ];
     }
 

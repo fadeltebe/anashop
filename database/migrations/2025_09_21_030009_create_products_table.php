@@ -14,44 +14,36 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
 
-            // Kunci Asing ke Kategori
+            // RELATION
             $table->foreignId('category_id')
-                ->constrained('categories')
-                ->onDelete('cascade');
+                ->constrained()
+                ->cascadeOnDelete();
 
-            // Informasi Dasar & SEO
-            $table->string('code')->unique();       // Product code / SKU
-            $table->string('name');                 // Product name
-            $table->string('slug')->unique();       // SEO friendly URL
+            // IDENTITAS
+            $table->string('owner');
+            $table->string('code')->unique();
+            $table->string('name');
+            $table->string('slug')->unique();
 
-            // Harga (Menggunakan DECIMAL untuk presisi mata uang)
-            // 10 digit total, 2 di belakang koma (contoh: 99,999,999.99)
-            $table->decimal('cost_price', 10, 2);
-            $table->decimal('cell_price', 10, 2);
-            $table->decimal('discount_price', 10, 2)->nullable(); // Harga setelah diskon
+            // KONTEN
+            $table->text('description')->nullable();
+            $table->string('thumbnail')->nullable();
 
-            // Inventaris & Penjualan
-            $table->unsignedInteger('stock');       // Kuantitas stok
-            $table->unsignedInteger('total_sales')->default(0); // Hitungan penjualan
-            $table->unsignedBigInteger('weight')->default(0); // Berat dalam gram
+            // FLAG VARIASI
+            // Penting: Jika false, produk hanya punya 1 variant (default).
+            // Jika true, produk punya banyak variant hasil kombinasi attribute_values.
+            $table->boolean('has_variant')->default(false);
 
-            // Rating
-            // Menggunakan SmallInteger (0-50 atau 0-500) untuk menyimpan rating (misal: 4.5 disimpan sebagai 45 atau 450)
-            $table->decimal('rating', 10, 2);
-            $table->unsignedInteger('rating_count')->default(0); // Jumlah ulasan yang diterima
+            // RATING & STATS
+            $table->decimal('rating', 3, 2)->default(0.00);
+            $table->unsignedInteger('rating_count')->default(0);
+            $table->unsignedInteger('total_sales')->default(0);
 
-            // Konten & Media
-            $table->text('description')->nullable(); // Deskripsi produk
-            $table->string('thumbnail')->nullable(); // Gambar utama
-            $table->json('photos')->nullable();      // Gambar galeri (format JSON)
+            // STATUS
+            $table->boolean('is_active')->default(true);
 
-            // Status Produk (Untuk kemudahan filtering di Dashboard/Livewire)
-            $table->boolean('is_published')->default(true); // Produk dapat dilihat publik
-            $table->boolean('is_live')->default(true);      // Produk aktif dijual
-            $table->boolean('is_featured')->default(false);  // Produk unggulan
-            $table->boolean('is_flash_sale')->default(false); // Produk yang sedang dalam flash sale
             $table->timestamps();
-            $table->softDeletes(); // Untuk mengaktifkan soft deletes
+            $table->softDeletes();
         });
     }
 
@@ -60,9 +52,13 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropForeign(['category_id']);
-        });
+        // 1. Matikan pengecekan foreign key
+        Schema::disableForeignKeyConstraints();
+
+        // 2. Hapus tabel
         Schema::dropIfExists('products');
+
+        // 3. Hidupkan kembali pengecekan
+        Schema::enableForeignKeyConstraints();
     }
 };

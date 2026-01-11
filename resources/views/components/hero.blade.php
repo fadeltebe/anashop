@@ -4,7 +4,7 @@
         <div class="flex-shrink-0 w-full h-full relative">
             <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}" class="w-full h-full object-cover object-center">
 
-            <div class="absolute inset-0 bg-black  flex flex-col items-center justify-center text-center text-white px-4">
+            <div class="absolute flex flex-col items-center justify-center text-center text-white px-4">
                 <!-- <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-2">{{ $banner->title }}</h2>
                 <p class="text-sm md:text-lg lg:text-xl mb-4">{{ $banner->subtitle }}</p> -->
                 @if ($banner->link)

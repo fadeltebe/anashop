@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();       // Category name
+            $table->string('code')->unique();
             $table->string('slug')->unique();       // For SEO-friendly URLs
             $table->boolean('is_active')->default(true); // Active/inactive toggle
             $table->unsignedInteger('total_products')->default(0);
