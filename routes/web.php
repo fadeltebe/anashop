@@ -2,14 +2,15 @@
 
 use App\Models\Category;
 use App\Livewire\HomePage;
+use App\Livewire\ProductShow;
 use App\Livewire\CheckoutPage;
 use App\Livewire\LiveProducts;
 use App\Livewire\ShoppingCart;
 use App\Livewire\ProductDetail;
 use App\Livewire\CollectionPage;
 use App\Livewire\CategoryProducts;
-use Illuminate\Support\Facades\Route;
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\BannerController;
@@ -39,7 +40,9 @@ Route::get('/collections/{slug}', CollectionPage::class)
 
 // Route::get('/product/{slug}', ProductDetail::class)->name('product.detail');
 // Jika pakai Controller biasa
-Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
+// Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
+// Route::get('/product/{slug}', ProductDetail::class)->name('product.show');
+Route::get('/product/{slug}', ProductShow::class)->name('product.show');
 
 Route::get('/banner/{slug}', [BannerController::class, 'show'])->name('banner.show');
 

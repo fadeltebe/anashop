@@ -5,217 +5,338 @@ namespace App\Services;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\CartItem;
+use Illuminate\Support\Str;
+use App\Models\ProductVariant;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class CartService
 {
-    /**
-     * Get or create cart for current user/session
-     */
-    public function getCart()
+    /* ======================================================
+     * GET OR CREATE CART
+     * Untuk user login: pakai user_id
+     * Untuk guest: pakai session_id
+     * ====================================================== */
+    public function getCart(): Cart
     {
         if (Auth::check()) {
-            return Cart::firstOrCreate(['user_id' => Auth::id()]);
+            // User login - cari/buat berdasarkan user_id
+            return Cart::firstOrCreate(
+                ['user_id' => Auth::id()],
+                ['session_id' => null]
+            );
         }
 
-        $sessionId = Session::getId();
-        return Cart::firstOrCreate(['session_id' => $sessionId]);
+        // Guest - cari/buat berdasarkan session_id
+        $sessionId = Session::get('cart_session_id');
+
+        if (!$sessionId) {
+            $sessionId = Str::uuid()->toString();
+            Session::put('cart_session_id', $sessionId);
+        }
+
+        return Cart::firstOrCreate(
+            ['session_id' => $sessionId],
+            ['user_id' => null]
+        );
     }
 
-    /**
-     * Add item to cart (with stock validation)
-     */
-    public function addItem($productId, $quantity = 1, $variant = null, $size = null)
+    /* ======================================================
+     * GET CART WITH ITEMS
+     * Load cart beserta items dan relasi
+     * ====================================================== */
+    public function getCartWithItems(): Cart
     {
-        // 🔹 Ambil produk beserta item varian
-        $product = Product::with('items')->findOrFail($productId);
         $cart = $this->getCart();
 
-        // 🔹 Tentukan harga produk (prioritaskan discount_price jika ada)
-        $finalPrice = $product->discount_price ?? $product->price;
-
-        // 🔎 Tentukan stok berdasarkan variant/size jika ada
-        $itemVariant = $product->items
-            ->when($variant, fn($q) => $q->where('variant', $variant))
-            ->when($size, fn($q) => $q->where('size', $size))
-            ->first();
-
-        $availableStock = $itemVariant ? $itemVariant->stock : $product->stock;
-
-        // 🔒 Validasi stok
-        if ($availableStock <= 0) {
-            throw new \Exception("Produk '{$product->name}' sedang tidak tersedia.");
-        }
-
-        // 🔍 Cek apakah item dengan varian & ukuran sama sudah ada di keranjang
-        $existingItem = $cart->items()
-            ->where('product_id', $productId)
-            ->where('variant', $variant)
-            ->where('size', $size)
-            ->first();
-
-        // 🧮 Jika item sudah ada, tambahkan jumlah
-        if ($existingItem) {
-            $newQuantity = $existingItem->quantity + $quantity;
-
-            if ($newQuantity > $availableStock) {
-                throw new \Exception("Stok tidak mencukupi untuk '{$product->name}'. Maksimal {$availableStock} item.");
-            }
-
-            $existingItem->update(['quantity' => $newQuantity]);
-            return $existingItem;
-        }
-
-        // 🆕 Jika item baru ditambahkan
-        if ($quantity > $availableStock) {
-            throw new \Exception("Quantity melebihi stok untuk '{$product->name}'. Maksimal {$availableStock} item.");
-        }
-
-        // 💰 Simpan item baru ke keranjang dengan harga final
-        return CartItem::create([
-            'cart_id'    => $cart->id,
-            'product_id' => $productId,
-            'variant'    => $variant,
-            'size'       => $size,
-            'quantity'   => $quantity,
-            'price'      => $finalPrice, // gunakan harga promo jika ada
+        // Eager load untuk performa
+        $cart->load([
+            'items.product.category',
+            'items.variant'
         ]);
+
+        return $cart;
     }
 
-
-    /**
-     * Update item quantity (with stock check)
-     */
-    public function updateQuantity($cartItemId, $quantity)
+    /* ======================================================
+     * ADD ITEM TO CART
+     * ====================================================== */
+    public function addItem(int $productId, int $variantId, int $quantity = 1): CartItem
     {
-        $cartItem = CartItem::with('product.items')->findOrFail($cartItemId);
+        $cart = $this->getCart();
 
-        if ($quantity <= 0) {
-            return $this->removeItem($cartItemId);
+        // Validasi product exists
+        $product = Product::findOrFail($productId);
+
+        // Validasi variant exists & belongs to product
+        $variant = ProductVariant::where('id', $variantId)
+            ->where('product_id', $productId)
+            ->firstOrFail();
+
+        // Validasi stok
+        if ($variant->stock < $quantity) {
+            throw new \Exception(
+                "Stok tidak mencukupi. Tersedia: {$variant->stock}, Diminta: {$quantity}"
+            );
         }
 
-        $product = $cartItem->product;
-        $itemVariant = $product->items
-            ->when($cartItem->variant, fn($q) => $q->where('variant', $cartItem->variant))
-            ->when($cartItem->size, fn($q) => $q->where('size', $cartItem->size))
+        // Cek apakah item sudah ada di cart
+        $cartItem = CartItem::where('cart_id', $cart->id)
+            ->where('product_id', $productId)
+            ->where('variant_id', $variantId)
             ->first();
 
-        $availableStock = $itemVariant ? $itemVariant->stock : $product->stock;
+        if ($cartItem) {
+            // Update quantity jika sudah ada
+            $newQuantity = $cartItem->quantity + $quantity;
 
-        if ($quantity > $availableStock) {
-            throw new \Exception("Stok tidak mencukupi untuk '{$product->name}'. Maksimal $availableStock item.");
+            // Validasi total quantity vs stock
+            if ($variant->stock < $newQuantity) {
+                throw new \Exception(
+                    "Stok tidak mencukupi. Tersedia: {$variant->stock}, " .
+                        "Di keranjang: {$cartItem->quantity}, Diminta tambahan: {$quantity}"
+                );
+            }
+
+            $cartItem->update(['quantity' => $newQuantity]);
+        } else {
+            // Buat item baru
+            $cartItem = CartItem::create([
+                'cart_id' => $cart->id,
+                'product_id' => $productId,
+                'variant_id' => $variantId,
+                'quantity' => $quantity,
+            ]);
+        }
+
+        return $cartItem->fresh(['product', 'variant']);
+    }
+
+    /* ======================================================
+     * UPDATE ITEM QUANTITY
+     * ====================================================== */
+    public function updateQuantity(int $cartItemId, int $quantity): CartItem
+    {
+        $cartItem = CartItem::findOrFail($cartItemId);
+
+        // Validasi ownership
+        if ($cartItem->cart_id !== $this->getCart()->id) {
+            throw new \Exception('Item tidak ditemukan di keranjang Anda.');
+        }
+
+        // Validasi quantity minimal 1
+        if ($quantity < 1) {
+            throw new \Exception('Jumlah minimal adalah 1.');
+        }
+
+        // Validasi stok
+        if ($cartItem->variant->stock < $quantity) {
+            throw new \Exception(
+                "Stok tidak mencukupi. Tersedia: {$cartItem->variant->stock}"
+            );
         }
 
         $cartItem->update(['quantity' => $quantity]);
-        return $cartItem;
+
+        return $cartItem->fresh(['product', 'variant']);
     }
 
-    /**
-     * Remove item from cart
-     */
-    public function removeItem($cartItemId)
+    /* ======================================================
+     * REMOVE ITEM FROM CART
+     * ====================================================== */
+    public function removeItem(int $cartItemId): bool
     {
         $cartItem = CartItem::findOrFail($cartItemId);
-        $cartItem->delete();
-        return true;
+
+        // Validasi ownership
+        if ($cartItem->cart_id !== $this->getCart()->id) {
+            throw new \Exception('Item tidak ditemukan di keranjang Anda.');
+        }
+
+        return $cartItem->delete();
     }
 
-    /**
-     * Clear entire cart
-     */
-    public function clearCart()
+    /* ======================================================
+     * CLEAR CART
+     * Hapus semua items
+     * ====================================================== */
+    public function clearCart(): bool
     {
         $cart = $this->getCart();
-        $cart->items()->delete();
-        return true;
+        return $cart->items()->delete();
     }
 
-    /**
-     * Get cart with items
-     */
-    public function getCartWithItems()
+    /* ======================================================
+     * GET CART SUMMARY
+     * Total items, subtotal, dll
+     * ====================================================== */
+    public function getCartSummary(): array
     {
-        return $this->getCart()->load('items.product');
+        $cart = $this->getCartWithItems();
+
+        $totalItems = $cart->items->sum('quantity');
+        $subtotal = $cart->items->sum(function ($item) {
+            return $item->variant->sale_price * $item->quantity;
+        });
+
+        return [
+            'total_items' => $totalItems,
+            'total_unique_items' => $cart->items->count(),
+            'subtotal' => $subtotal,
+            'tax' => 0, // Sesuaikan jika ada pajak
+            'shipping' => 0, // Sesuaikan jika ada ongkir
+            'total' => $subtotal,
+        ];
     }
 
-    /**
-     * Merge session cart to user cart after login
-     */
-    public function mergeSessionCart($userId)
+    /* ======================================================
+     * MERGE GUEST CART TO USER CART
+     * Dipanggil saat user login
+     * ====================================================== */
+    public function mergeGuestCart(string $guestSessionId): void
     {
-        $sessionId = Session::getId();
-        $sessionCart = Cart::where('session_id', $sessionId)->first();
+        if (!Auth::check()) {
+            return;
+        }
 
+        // Cari guest cart
+        $guestCart = Cart::where('session_id', $guestSessionId)->first();
+
+        if (!$guestCart || $guestCart->items->isEmpty()) {
+            return;
+        }
+
+        // Get user cart
+        $userCart = Cart::firstOrCreate(
+            ['user_id' => Auth::id()],
+            ['session_id' => null]
+        );
+
+        // Merge items
+        foreach ($guestCart->items as $guestItem) {
+            $existingItem = CartItem::where('cart_id', $userCart->id)
+                ->where('product_id', $guestItem->product_id)
+                ->where('variant_id', $guestItem->variant_id)
+                ->first();
+
+            if ($existingItem) {
+                // Merge quantity
+                $newQuantity = $existingItem->quantity + $guestItem->quantity;
+
+                // Validasi stok
+                if ($guestItem->variant->stock >= $newQuantity) {
+                    $existingItem->update(['quantity' => $newQuantity]);
+                }
+            } else {
+                // Pindahkan item ke user cart
+                $guestItem->update(['cart_id' => $userCart->id]);
+            }
+        }
+
+        // Hapus guest cart
+        $guestCart->delete();
+        Session::forget('cart_session_id');
+    }
+
+    /* ======================================================
+     * GET CART COUNT
+     * Total items untuk badge di navbar
+     * ====================================================== */
+    public function getCartCount(): int
+    {
+        $cart = $this->getCart();
+        return $cart->items->sum('quantity');
+    }
+
+    /* ======================================================
+     * CHECK IF CART HAS ITEMS
+     * ====================================================== */
+    public function hasItems(): bool
+    {
+        return $this->getCart()->items()->exists();
+    }
+
+    /* ======================================================
+     * SYNC CART PRICES (PRICE CAN CHANGE)
+     * ====================================================== */
+    public function syncPrices(): void
+    {
+        $cart = $this->getCartWithItems();
+
+        foreach ($cart->items as $item) {
+            $variant = $item->variant;
+
+            if (!$variant) {
+                $item->delete();
+                continue;
+            }
+
+            $latestPrice = $variant->sale_price ?? $variant->cost_price ?? 0;
+
+            if ($item->price != $latestPrice) {
+                $item->update(['price' => $latestPrice]);
+            }
+        }
+    }
+
+    /* ======================================================
+     * MERGE SESSION CART AFTER LOGIN
+     * ====================================================== */
+    public function mergeSessionCart(int $userId): void
+    {
+        $sessionCart = Cart::where('session_id', Session::getId())->first();
         if (!$sessionCart) {
             return;
         }
 
         $userCart = Cart::firstOrCreate(['user_id' => $userId]);
 
-        foreach ($sessionCart->items as $sessionItem) {
-            $existingItem = $userCart->items()
-                ->where('product_id', $sessionItem->product_id)
-                ->where('variant', $sessionItem->variant)
-                ->where('size', $sessionItem->size)
-                ->first();
+        DB::transaction(function () use ($sessionCart, $userCart) {
+            foreach ($sessionCart->items as $item) {
 
-            if ($existingItem) {
-                $newQuantity = $existingItem->quantity + $sessionItem->quantity;
-
-                // 🔒 Validasi stok saat merge
-                $product = $sessionItem->product;
-                $variantItem = $product->items
-                    ->when($sessionItem->variant, fn($q) => $q->where('variant', $sessionItem->variant))
-                    ->when($sessionItem->size, fn($q) => $q->where('size', $sessionItem->size))
-                    ->first();
-
-                $stock = $variantItem ? $variantItem->stock : $product->stock;
-
-                if ($newQuantity > $stock) {
-                    $newQuantity = $stock; // Sesuaikan dengan stok maksimum
+                $variant = ProductVariant::lockForUpdate()->find($item->variant_id);
+                if (!$variant || $variant->stock <= 0) {
+                    continue;
                 }
 
-                $existingItem->update(['quantity' => $newQuantity]);
-            } else {
-                $sessionItem->update(['cart_id' => $userCart->id]);
+                $existing = $userCart->items()
+                    ->where('product_id', $item->product_id)
+                    ->where('variant_id', $item->variant_id)
+                    ->first();
+
+                if ($existing) {
+                    $qty = min(
+                        $existing->quantity + $item->quantity,
+                        $variant->stock
+                    );
+                    $existing->update(['quantity' => $qty]);
+                    $item->delete();
+                } else {
+                    $item->update(['cart_id' => $userCart->id]);
+                }
             }
-        }
 
-        $sessionCart->delete();
+            $sessionCart->delete();
+        });
     }
 
-    /**
-     * Get cart count
-     */
-    public function getCartCount()
-    {
-        $cart = $this->getCart();
-        return $cart->items()->sum('quantity') ?? 0;
-    }
-
-    /**
-     * Validate stock before checkout
-     */
-    public function validateStock()
+    /* ======================================================
+     * VALIDATE STOCK BEFORE CHECKOUT
+     * ====================================================== */
+    public function validateStock(): array
     {
         $cart = $this->getCartWithItems();
         $errors = [];
 
         foreach ($cart->items as $item) {
-            $product = $item->product;
-            $variantItem = $product->items
-                ->when($item->variant, fn($q) => $q->where('variant', $item->variant))
-                ->when($item->size, fn($q) => $q->where('size', $item->size))
-                ->first();
+            $stock = $item->variant->stock ?? 0;
 
-            $availableStock = $variantItem ? $variantItem->stock : $product->stock;
-
-            if ($item->quantity > $availableStock) {
+            if ($item->quantity > $stock) {
                 $errors[] = [
-                    'product' => $product->name,
+                    'product'   => $item->product->name,
                     'requested' => $item->quantity,
-                    'available' => $availableStock,
+                    'available' => $stock,
                 ];
             }
         }

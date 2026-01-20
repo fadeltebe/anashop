@@ -14,13 +14,27 @@ return new class extends Migration
         Schema::create('transaction_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('transaction_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->integer('quantity')->default(1);
+
+            // PERBAIKAN: Tambahkan nullable() agar bisa menjalankan nullOnDelete()
+            $table->foreignId('product_id')
+                ->nullable() // Wajib ada agar 'set null' bekerja
+                ->constrained('products')
+                ->nullOnDelete();
+
+            $table->foreignId('variant_id')
+                ->nullable()
+                ->constrained('product_variants')
+                ->nullOnDelete();
+
+            // Snapshot data (Sudah benar, sangat bagus untuk histori transaksi)
+            $table->string('product_name');
+            $table->string('variant_name')->nullable();
+            $table->string('sku')->nullable();
+
+            $table->integer('quantity');
             $table->decimal('price', 15, 2);
             $table->decimal('subtotal', 15, 2);
             $table->timestamps();
-            $table->softDeletes(); // Untuk mengaktifkan soft deletes
-
         });
     }
 
@@ -32,6 +46,7 @@ return new class extends Migration
         Schema::table('transaction_items', function (Blueprint $table) {
             $table->dropForeign(['transaction_id']);
             $table->dropForeign(['product_id']);
+            $table->dropForeign(['variant_id']);
         });
         Schema::dropIfExists('transaction_items');
     }

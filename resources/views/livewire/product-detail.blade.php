@@ -26,19 +26,19 @@
                 </div>
 
                 {{-- Price --}}
-                <div class="">
+                <div class="mb-2">
                     <span class="text-3xl font-bold text-orange-600">
-                        Rp {{ number_format($product->discount_price ?? $product->price, 0, ',', '.') }}
+                        Rp {{ number_format($activeVariant?->sale_price ?? 0, 0, ',', '.') }}
                     </span>
                 </div>
+
+                @if($activeVariant && $activeVariant->compare_price && $activeVariant->compare_price > $activeVariant->sale_price)
                 <div class="mb-4 pb-4 border-b border-gray-200">
-                    {{-- Original Price if discount exists --}}
-                    @if ($product->discount_price)
                     <span class="text-lg text-gray-500 line-through">
-                        Rp {{ number_format($product->price, 0, ',', '.') }}
+                        Rp {{ number_format($activeVariant->compare_price, 0, ',', '.') }}
                     </span>
-                    @endif
                 </div>
+                @endif
 
                 {{-- Category --}}
                 <div class="mb-6">
@@ -47,30 +47,24 @@
                     </span>
                 </div>
 
-                {{-- Varian --}}
-                @if($uniqueVariants->count() > 0)
+                {{-- Varian (untuk multi-variant product) --}}
+                @if($product->has_variant && $availableVariants->count() > 0)
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">Pilih Varian:</label>
                     <div class="flex flex-wrap gap-2">
-                        @foreach($uniqueVariants as $variant)
-                        <button wire:click="selectVariant('{{ $variant }}')" class="px-5 py-2.5 rounded-lg border-2 transition-all font-medium
-                                   {{ $selectedVariant === $variant ? 'bg-orange-500 text-white border-orange-500 shadow-md' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300 hover:shadow-sm' }}">
-                            {{ $variant }}
-                        </button>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
+                        @foreach($availableVariants as $variant)
+                        <button wire:click="selectVariant({{ $variant->id }})" class="px-5 py-2.5 rounded-lg border-2 transition-all font-medium
+                                {{ $activeVariant && $activeVariant->id === $variant->id 
+                                    ? 'bg-orange-500 text-white border-orange-500 shadow-md' 
+                                    : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300 hover:shadow-sm' }}">
+                            {{ $variant->variant_name }}
 
-                {{-- Ukuran --}}
-                @if($uniqueSizes->count() > 0)
-                <div class="mb-5">
-                    <label class="block text-sm font-semibold text-gray-700 mb-3">Pilih Ukuran:</label>
-                    <div class="flex flex-wrap gap-2">
-                        @foreach($uniqueSizes as $size)
-                        <button wire:click="selectSize('{{ $size }}')" class="px-5 py-2.5 rounded-lg border-2 transition-all font-medium
-                                   {{ $selectedSize === $size ? 'bg-orange-500 text-white border-orange-500 shadow-md' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300 hover:shadow-sm' }}">
-                            {{ $size }}
+                            {{-- Tampilkan harga jika berbeda --}}
+                            @if($variant->sale_price !== $activeVariant?->sale_price)
+                            <span class="block text-xs mt-1 opacity-75">
+                                Rp {{ number_format($variant->sale_price, 0, ',', '.') }}
+                            </span>
+                            @endif
                         </button>
                         @endforeach
                     </div>
@@ -82,9 +76,15 @@
                     <p class="text-sm text-gray-600">
                         Stok tersedia:
                         <span class="font-bold text-lg {{ $stock > 0 ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $stock ?? 0 }}
+                            {{ $stock }}
                         </span>
                     </p>
+
+                    @if($activeVariant)
+                    <p class="text-xs text-gray-500 mt-1">
+                        SKU: {{ $activeVariant->sku }}
+                    </p>
+                    @endif
                 </div>
 
                 {{-- Quantity --}}
@@ -92,11 +92,11 @@
                 <div class="mb-6">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">Jumlah:</label>
                     <div class="flex items-center space-x-4">
-                        <button wire:click="decreaseQuantity" class="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition font-bold text-lg" {{ $quantity <=1 ? 'disabled' : '' }}>
+                        <button wire:click="decreaseQuantity" class="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed" {{ $quantity <=1 ? 'disabled' : '' }}>
                             -
                         </button>
                         <span class="font-bold text-2xl w-16 text-center">{{ $quantity }}</span>
-                        <button wire:click="increaseQuantity" class="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition font-bold text-lg" {{ $quantity>= $stock ? 'disabled' : '' }}>
+                        <button wire:click="increaseQuantity" class="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed" {{ $quantity>= $stock ? 'disabled' : '' }}>
                             +
                         </button>
                     </div>
@@ -131,9 +131,9 @@
                     <button wire:click="addToCart" {{ $stock <=0 ? 'disabled' : '' }} class="flex-1 bg-orange-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-all shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none">
                         🛒 Tambah ke Keranjang
                     </button>
-                    <a wire:click="buyNow" class="flex-1 text-center px-8 py-3 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-all shadow-md hover:shadow-lg cursor-pointer">
+                    <button wire:click="buyNow" {{ $stock <=0 ? 'disabled' : '' }} class="flex-1 px-8 py-3 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-all shadow-md hover:shadow-lg cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none">
                         ⚡ Beli Sekarang
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>

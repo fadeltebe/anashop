@@ -110,7 +110,7 @@ class ProductsTable
                             //     ->formatStateUsing(fn($id, $record) => str_pad('Tampil?', 15, ' ', STR_PAD_RIGHT))
                             //     ->extraCellAttributes(['class' => 'text-right pr-2']),
 
-                            ToggleColumn::make('is_published')->label(''),
+                            ToggleColumn::make('is_active')->label(''),
 
                             // TextColumn::make('id')
                             //     ->label('')

@@ -12,16 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->id(); // Primary key transaksi
-            $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete(); // Relasi ke tabel customers, nullable jika transaksi walk-in
-            $table->date('transaction_date'); // Tanggal transaksi dilakukan
-            $table->decimal('total', 15, 2)->default(0); // Jumlah total dari semua item sebelum diskon dan biaya tambahan
-            $table->decimal('discount', 15, 2)->default(0); // Potongan harga yang diberikan pada transaksi (nominal)
-            $table->decimal('additional_fee', 15, 2)->default(0); // Biaya tambahan seperti ongkos kirim atau packaging
-            $table->decimal('grand_total', 15, 2)->default(0); // Total akhir yang harus dibayar: total - discount + additional_fee
-            $table->string('status')->default('pending'); // Status transaksi: pending, paid, cancelled
-            $table->text('note')->nullable()->after('additional_fee');
-            $table->text('admin_note')->nullable()->after('note');
+            $table->id();
+            $table->string('transaction_code')->unique(); // ✅ Tambahkan
+            $table->foreignId('customer_id')->constrained();
+            $table->timestamp('transaction_date');
+
+            $table->decimal('total', 15, 2);
+            $table->decimal('discount', 15, 2)->default(0);
+            $table->decimal('additional_fee', 15, 2)->default(0);
+            $table->decimal('grand_total', 15, 2);
+
+            $table->string('payment_method'); // ✅ Tambahkan
+            $table->enum('payment_status', ['unpaid', 'paid', 'refunded'])->default('unpaid'); // ✅ Tambahkan
+            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled', 'failed'])->default('pending');
+            $table->text('note')->nullable();
             $table->timestamps(); // created_at dan updated_at
             $table->softDeletes(); // Untuk mengaktifkan soft deletes
 
@@ -34,6 +38,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->dropForeign(['customer_id']);
+        });
         Schema::dropIfExists('transactions');
     }
 };

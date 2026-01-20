@@ -30,8 +30,8 @@ class ShoppingCart extends Component
     {
         $cart = $this->cartService->getCartWithItems();
 
-        // ✅ Biarkan tetap sebagai Eloquent Collection
-        $this->cartItems = $cart->items->load('product');
+        // ✅ Tetap sebagai Eloquent Collection, dan pastikan relasi sudah dimuat dari CartService
+        $this->cartItems = $cart->items;
 
         $this->calculateTotals();
     }
@@ -81,15 +81,12 @@ class ShoppingCart extends Component
 
     protected function calculateTotals()
     {
-        $this->subtotal = $this->cartItems->sum(function ($item) {
-            $price = $item->product->discount_price ?? $item->product->price;
-            return $price * $item->quantity;
-        });
+        // ✅ Gunakan accessor subtotal dari CartItem model (yang menggunakan variant->sale_price)
+        $this->subtotal = $this->cartItems->sum('subtotal');
 
         $this->shipping = $this->subtotal > 100000 ? 0 : 15000;
         $this->total = $this->subtotal + $this->shipping;
     }
-
 
     public function render()
     {

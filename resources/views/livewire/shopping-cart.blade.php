@@ -25,29 +25,26 @@
                         <div class="flex gap-4">
                             {{-- Product Image --}}
                             <div class="flex-shrink-0">
-                                <img src="{{ asset('storage/' . $item->product->thumbnail) }}" alt="{{ $item->product->name }}" class="w-24 h-24 object-cover rounded-lg">
+                                {{-- ✅ Gunakan accessor image_url dari CartItem model --}}
+                                <img src="{{ $item->image_url }}" alt="{{ $item->product_name }}" class="w-24 h-24 object-cover rounded-lg">
                             </div>
 
                             {{-- Product Info --}}
                             <div class="flex-1">
                                 <h3 class="text-lg font-semibold text-gray-900">
-                                    {{ $item->product->name }}
+                                    {{ $item->product_name }}
+                                    {{-- ✅ Tampilkan variant name jika bukan default --}}
+                                    @if($item->variant_name !== 'Default')
+                                    <span class="text-sm text-gray-600">({{ $item->variant_name }})</span>
+                                    @endif
                                 </h3>
                                 <div class="mt-2">
-                                    @if ($item->product->discount_price)
+                                    {{-- ✅ Gunakan accessor price dari CartItem model (variant sale_price) --}}
                                     <p class="text-lg font-bold text-orange-600">
-                                        Rp {{ number_format($item->product->discount_price, 0, ',', '.') }}
+                                        Rp {{ number_format($item->price, 0, ',', '.') }}
                                     </p>
-                                    <p class="text-sm text-gray-500 line-through">
-                                        Rp {{ number_format($item->product->price, 0, ',', '.') }}
-                                    </p>
-                                    @else
-                                    <p class="text-lg font-bold text-orange-600">
-                                        Rp {{ number_format($item->product->price, 0, ',', '.') }}
-                                    </p>
-                                    @endif
+                                    {{-- Jika ada diskon di variant, bisa tambahkan logika, tapi untuk sekarang pakai sale_price --}}
                                 </div>
-
 
                                 {{-- Quantity Controls --}}
                                 <div class="flex items-center space-x-3 mt-4">
@@ -55,10 +52,15 @@
                                             -
                                     </button>
                                     <span class="font-bold w-8 text-center">{{ $item->quantity }}</span>
-                                    <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" class="w-8 h-8 border-2 border-gray-300 rounded-lg hover:bg-gray-100 transition">
+                                    {{-- ✅ Validasi agar tidak melebihi stock --}}
+                                    <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" class="w-8 h-8 border-2 border-gray-300 rounded-lg hover:bg-gray-100 transition" @if($item->quantity >= $item->available_stock) disabled class="opacity-50 cursor-not-allowed" @endif>
                                         +
                                     </button>
                                 </div>
+                                {{-- ✅ Tampilkan pesan jika overstock --}}
+                                @if($item->is_overstock)
+                                <p class="text-red-500 text-sm mt-2">Jumlah melebihi stok tersedia ({{ $item->available_stock }})</p>
+                                @endif
                             </div>
 
                             {{-- Remove Button --}}

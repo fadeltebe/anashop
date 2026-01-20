@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('sku')->unique()->nullable(); // Contoh: BHN-RED-L
             $table->string('variant_name')->nullable(); // Opsional: Untuk nama varian spesifik (Merah - L)
 
-            $table->decimal('price', 15, 2)->default(0); // Harga spesifik varian
-            $table->decimal('cost_price', 15, 2)->default(0); // Harga modal spesifik varian
+            $table->decimal('cost_price', 15, 2)->default(0); // Harga spesifik varian
+            $table->decimal('sale_price', 15, 2)->default(0); // Harga modal spesifik varian
             $table->integer('stock')->default(0);
             $table->string('image')->nullable();
 

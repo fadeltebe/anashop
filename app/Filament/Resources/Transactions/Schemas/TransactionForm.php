@@ -2,12 +2,13 @@
 
 namespace App\Filament\Resources\Transactions\Schemas;
 
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
+use Filament\Schemas\Schema;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Schema;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\ToggleButtons;
 
 class TransactionForm
 {
@@ -38,29 +39,53 @@ class TransactionForm
                     ->required()
                     ->numeric()
                     ->default(0.0),
-                Radio::make('status')
+                ToggleButtons::make('status')
                     ->options([
-                        'Pending' => 'Pending',
-                        'Diantar' => 'Diantar',
-                        'Selesai' => 'Selesai',
-                        'Batal' => 'Batal',
+                        'pending' => 'Pending',
+                        'processing' => 'Diantar',
+                        'completed' => 'Selesai',
+                        'cancelled' => 'Batal',
+                    ])
+                    ->colors([
+                        'pending' => 'warning',
+                        'processing' => 'info',
+                        'completed' => 'success',
+                        'cancelled' => 'danger',
+                    ])->grouped()
+                    ->icons([
+                        'pending' => 'heroicon-o-clock',
+                        'processing' => 'heroicon-o-truck',
+                        'completed' => 'heroicon-o-check-circle',
+                        'cancelled' => 'heroicon-o-x-circle',
                     ])
                     ->default('pending'),
-                Select::make('payment_method')
+                ToggleButtons::make('payment_method')
                     ->options([
                         'qris' => 'QRIS',
                         'transfer' => 'Transfer',
                         'e_wallet' => 'E-Wallet',
                         'cod' => 'COD',
+                    ])->grouped()
+                    ->default('qris')
+                    ->colors([
+                        'qris' => 'primary',
+                        'transfer' => 'secondary',
+                        'e_wallet' => 'success',
+                        'cod' => 'warning',
                     ])
                     ->nullable(),
-                Select::make('payment_status')
+                ToggleButtons::make('payment_status')
                     ->options([
-                        'pending' => 'Pending',
-                        'completed' => 'Completed',
-                        'failed' => 'Failed',
+                        'unpaid' => 'Belum Bayar',
+                        'paid' => 'Lunas',
+                        'refunded' => 'Dikembalikan',
+                    ])->grouped()
+                    ->colors([
+                        'unpaid' => 'danger',
+                        'paid' => 'success',
+                        'refunded' => 'warning',
                     ])
-                    ->default('pending'),
+                    ->default('unpaid'),
                 FileUpload::make('payment_proof')
                     ->nullable()
                     ->maxSize(2048) // Maksimum 2MB per foto

@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('cart_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('cart_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->string('variant')->nullable();
-            $table->string('size')->nullable();
+            $table->foreignId('cart_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('variant_id')->constrained('product_variants')->cascadeOnDelete(); // ✅ FK
             $table->integer('quantity')->default(1);
-            $table->decimal('price', 10, 2);
             $table->timestamps();
 
-            $table->index('cart_id');
+            $table->index(['cart_id', 'product_id', 'variant_id']); // ✅ Composite index
+            $table->unique(['cart_id', 'product_id', 'variant_id']); // ✅ Prevent duplicate
         });
     }
 

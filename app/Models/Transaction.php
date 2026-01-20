@@ -11,18 +11,17 @@ class Transaction extends Model
 
     // Kolom yang bisa diisi massal
     protected $fillable = [
-        'customer_id',      // ID customer terkait transaksi
-        'transaction_date', // Tanggal transaksi
-        'total',            // Total semua item sebelum diskon/biaya tambahan
-        'discount',         // Potongan harga (nominal)
-        'additional_fee',   // Biaya tambahan (delivery, packaging, dll)
-        'grand_total',      // Total akhir setelah diskon dan biaya tambahan
-        'status',           // Status transaksi (pending, paid, cancelled)
-        'payment_method',   // Metode pembayaran (qris, transfer, e_wallet, cod)
-        'payment_status',   // Status pembayaran (pending, completed, failed)
-        'payment_proof',    // Bukti pembayaran (file gambar)
-        'note',             // Catatan dari customer
-        'admin_note',       // Catatan dari admin
+        'customer_id',
+        'payment_status',
+        'status',
+        'total',
+        'discount',
+        'additional_fee',
+        'grand_total',
+        'transaction_code',
+        'payment_method',
+        'transaction_date',
+        'note',
     ];
 
     /**
