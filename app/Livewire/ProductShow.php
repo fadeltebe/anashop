@@ -23,7 +23,9 @@ class ProductShow extends Component
     // Images
     public string $mainImage = '';
     public int $selectedPhotoIndex = 0;
-    public Collection $availablePhotos;
+    public Collection $availablePhotos; // All photos (product + variants)
+    public Collection $productPhotos;   // Only product photos
+    public Collection $variantPhotos;   // Only variant photos with variant_id
 
     // UI data
     public Collection $availableVariants;
@@ -40,11 +42,13 @@ class ProductShow extends Component
 
         // Initialize collections
         $this->availablePhotos = collect();
+        $this->productPhotos = collect();
+        $this->variantPhotos = collect();
         $this->availableVariants = collect();
 
         // Load data
-        $this->loadPhotos();
         $this->loadAvailableVariants();
+        $this->loadPhotos();
 
         // Set initial active variant
         $this->activeVariant = $this->getInitialVariant();
@@ -62,7 +66,6 @@ class ProductShow extends Component
 
     /* ======================================================
      * GET INITIAL VARIANT
-     * Ambil variant pertama sebagai default
      * ====================================================== */
     protected function getInitialVariant(): ?ProductVariant
     {
@@ -83,12 +86,10 @@ class ProductShow extends Component
 
     /* ======================================================
      * LOAD AVAILABLE VARIANTS
-     * Load semua variant untuk ditampilkan sebagai pilihan
      * ====================================================== */
     protected function loadAvailableVariants(): void
     {
         if ($this->product->has_variant) {
-            // ✅ Hanya ambil variant yang tidak ter-soft delete
             $this->availableVariants = $this->product->variants()
                 ->whereNull('deleted_at')
                 ->get();
@@ -99,46 +100,89 @@ class ProductShow extends Component
 
     /* ======================================================
      * LOAD PHOTOS
-     * Load semua foto produk (thumbnail + photos tambahan)
+     * Load foto produk + foto variant
      * ====================================================== */
     protected function loadPhotos(): void
     {
-        $photos = [];
+        $allPhotos = [];
 
-        // Thumbnail utama
+        // ✅ 1. Product Photos (thumbnail + additional photos)
+        $productPhotosList = [];
+
         if ($this->product->thumbnail) {
-            $photos[] = $this->product->thumbnail;
+            $productPhotosList[] = [
+                'url' => $this->product->thumbnail,
+                'type' => 'product',
+                'variant_id' => null,
+            ];
         }
 
-        // Foto tambahan dari field 'photos' (JSON array)
         if ($this->product->photos) {
             $extra = is_string($this->product->photos)
                 ? json_decode($this->product->photos, true)
                 : $this->product->photos;
 
             if (is_array($extra)) {
-                $photos = array_merge($photos, $extra);
+                foreach ($extra as $photo) {
+                    $productPhotosList[] = [
+                        'url' => $photo,
+                        'type' => 'product',
+                        'variant_id' => null,
+                    ];
+                }
             }
         }
 
-        $this->availablePhotos = collect($photos)->filter()->unique()->values();
+        // ✅ 2. Variant Photos (dari setiap variant yang punya image)
+        $variantPhotosList = [];
+
+        foreach ($this->availableVariants as $variant) {
+            if ($variant->image) {
+                $variantPhotosList[] = [
+                    'url' => $variant->image,
+                    'type' => 'variant',
+                    'variant_id' => $variant->id,
+                    'variant_name' => $variant->variant_name,
+                ];
+            }
+        }
+
+        // ✅ 3. Combine: Variant photos first, then product photos
+        $allPhotos = array_merge($variantPhotosList, $productPhotosList);
+
+        // Store in collections
+        $this->availablePhotos = collect($allPhotos);
+        $this->productPhotos = collect($productPhotosList);
+        $this->variantPhotos = collect($variantPhotosList);
     }
 
     /* ======================================================
      * SELECT PHOTO
-     * Ganti foto utama saat user klik thumbnail
+     * Ganti foto utama + auto-select variant jika foto variant
      * ====================================================== */
     public function selectPhoto(int $index): void
     {
-        if ($this->availablePhotos->has($index)) {
-            $this->selectedPhotoIndex = $index;
-            $this->mainImage = asset('storage/' . $this->availablePhotos[$index]);
+        if (!$this->availablePhotos->has($index)) {
+            return;
+        }
+
+        $photo = $this->availablePhotos[$index];
+
+        // Update selected index
+        $this->selectedPhotoIndex = $index;
+
+        // Update main image
+        $this->mainImage = asset('storage/' . $photo['url']);
+
+        // ✅ Jika foto ini adalah foto variant, auto-select variant tersebut
+        if ($photo['type'] === 'variant' && $photo['variant_id']) {
+            $this->selectVariant($photo['variant_id']);
         }
     }
 
     /* ======================================================
      * SELECT VARIANT
-     * User klik variant button
+     * User klik variant button atau klik foto variant
      * ====================================================== */
     public function selectVariant(int $variantId): void
     {
@@ -147,22 +191,35 @@ class ProductShow extends Component
             ->whereNull('deleted_at')
             ->first();
 
-        if ($variant) {
-            $this->activeVariant = $variant;
-            $this->selectedVariantName = $variant->variant_name;
-            $this->stock = $variant->stock;
+        if (!$variant) {
+            return;
+        }
 
-            // Reset quantity jika melebihi stock baru
-            $this->quantity = min($this->quantity, $this->stock);
+        // Update active variant
+        $this->activeVariant = $variant;
+        $this->selectedVariantName = $variant->variant_name;
+        $this->stock = $variant->stock;
 
-            // Update main image jika variant punya foto sendiri
-            if ($variant->image) {
-                $this->mainImage = asset('storage/' . $variant->image);
-                $this->selectedPhotoIndex = 0;
-            } else {
-                // Kembali ke foto produk utama
-                $this->mainImage = $this->getMainImageUrl();
+        // Reset quantity jika melebihi stock baru
+        $this->quantity = min($this->quantity, $this->stock);
+
+        // ✅ Update main image & selected photo index
+        if ($variant->image) {
+            // Jika variant punya foto sendiri
+            $this->mainImage = asset('storage/' . $variant->image);
+
+            // Find index of this variant photo
+            $photoIndex = $this->availablePhotos->search(function ($photo) use ($variant) {
+                return $photo['type'] === 'variant' && $photo['variant_id'] === $variant->id;
+            });
+
+            if ($photoIndex !== false) {
+                $this->selectedPhotoIndex = $photoIndex;
             }
+        } else {
+            // Kembali ke foto produk utama
+            $this->mainImage = $this->getMainImageUrl();
+            $this->selectedPhotoIndex = 0;
         }
     }
 
@@ -200,10 +257,10 @@ class ProductShow extends Component
         }
 
         try {
-            // ✅ Panggil CartService dengan variant_id (bukan string)
+            // Panggil CartService dengan variant_id
             app(\App\Services\CartService::class)->addItem(
                 $this->product->id,
-                $this->activeVariant->id, // ✅ Kirim variant_id
+                $this->activeVariant->id,
                 $this->quantity
             );
 
@@ -228,7 +285,6 @@ class ProductShow extends Component
 
     /* ======================================================
      * BUY NOW
-     * Langsung ke checkout
      * ====================================================== */
     public function buyNow()
     {
@@ -241,7 +297,6 @@ class ProductShow extends Component
 
     /* ======================================================
      * GET MAIN IMAGE URL
-     * Helper untuk mendapatkan URL foto utama
      * ====================================================== */
     protected function getMainImageUrl(): string
     {
@@ -256,7 +311,7 @@ class ProductShow extends Component
         }
 
         if ($this->availablePhotos->first()) {
-            return asset('storage/' . $this->availablePhotos->first());
+            return asset('storage/' . $this->availablePhotos->first()['url']);
         }
 
         return asset('images/default-product.png');

@@ -3,7 +3,7 @@
         <div class="grid md:grid-cols-2 gap-6">
 
             {{-- ========================================
-            PRODUCT IMAGES
+            PRODUCT IMAGES SECTION
             ======================================== --}}
             <div class="p-6 bg-gray-50">
                 {{-- Main Image --}}
@@ -15,16 +15,39 @@
                 @if($availablePhotos->count() > 1)
                 <div class="flex space-x-3 overflow-x-auto scrollbar-hide pb-2">
                     @foreach($availablePhotos as $index => $photo)
-                    <img src="{{ asset('storage/' . $photo) }}" wire:click="selectPhoto({{ $index }})" class="thumbnail w-20 h-20 object-cover rounded-lg cursor-pointer border-2 transition-all flex-shrink-0
-                            {{ $selectedPhotoIndex === $index ? 'border-orange-500 shadow-md ring-2 ring-orange-200' : 'border-gray-300' }}
-                            hover:border-orange-400 hover:shadow-sm" alt="Photo {{ $index + 1 }}">
+                    <div class="relative flex-shrink-0">
+                        <img src="{{ asset('storage/' . $photo['url']) }}" wire:click="selectPhoto({{ $index }})" class="thumbnail w-20 h-20 object-cover rounded-lg cursor-pointer border-2 transition-all
+                                {{ $selectedPhotoIndex === $index ? 'border-orange-500 shadow-md ring-2 ring-orange-200' : 'border-gray-300' }}
+                                hover:border-orange-400 hover:shadow-sm" alt="Photo {{ $index + 1 }}">
+
+                        {{-- Badge untuk foto variant --}}
+                        @if($photo['type'] === 'variant')
+                        <div class="absolute -top-1 -right-1 bg-orange-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">
+                            V
+                        </div>
+                        @endif
+                    </div>
                     @endforeach
                 </div>
+
+                {{-- Legend --}}
+                @if($variantPhotos->count() > 0)
+                <div class="mt-2 text-xs text-gray-500 flex items-center gap-2">
+                    <span class="inline-flex items-center">
+                        <span class="w-3 h-3 bg-orange-500 rounded-full mr-1"></span>
+                        Foto Varian
+                    </span>
+                    <span class="inline-flex items-center">
+                        <span class="w-3 h-3 bg-gray-300 rounded-full mr-1"></span>
+                        Foto Produk
+                    </span>
+                </div>
+                @endif
                 @endif
             </div>
 
             {{-- ========================================
-            PRODUCT DETAILS
+            PRODUCT DETAILS SECTION
             ======================================== --}}
             <div class="p-6 md:p-8">
 
@@ -48,7 +71,7 @@
                     </span>
                 </div>
 
-                {{-- Compare Price (Coret Harga) --}}
+                {{-- Compare Price --}}
                 @if($activeVariant && isset($activeVariant->compare_price) && $activeVariant->compare_price > $activeVariant->sale_price)
                 <div class="mb-4 pb-4 border-b border-gray-200">
                     <span class="text-lg text-gray-500 line-through">
@@ -67,7 +90,7 @@
                     </span>
                 </div>
 
-                {{-- Variant Selection (untuk multi-variant) --}}
+                {{-- Variant Selection --}}
                 @if($product->has_variant && $availableVariants->count() > 0)
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">
@@ -75,11 +98,20 @@
                     </label>
                     <div class="flex flex-wrap gap-2">
                         @foreach($availableVariants as $variant)
-                        <button wire:click="selectVariant({{ $variant->id }})" class="px-5 py-2.5 rounded-lg border-2 transition-all font-medium
+                        <button wire:click="selectVariant({{ $variant->id }})" class="group relative px-5 py-2.5 rounded-lg border-2 transition-all font-medium
                                 {{ $activeVariant && $activeVariant->id === $variant->id 
                                     ? 'bg-orange-500 text-white border-orange-500 shadow-md ring-2 ring-orange-200' 
                                     : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300 hover:shadow-sm' }}
                                 {{ $variant->stock <= 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }}" {{ $variant->stock <= 0 ? 'disabled' : '' }}>
+
+                                {{-- Badge jika variant punya foto --}}
+                                @if($variant->image)
+                                <div class="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
+                                    <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                @endif
 
                                 <span class="block">{{ $variant->variant_name }}</span>
 
@@ -96,6 +128,12 @@
                         </button>
                         @endforeach
                     </div>
+
+                    @if($variantPhotos->count() > 0)
+                    <p class="text-xs text-gray-500 mt-2">
+                        💡 Tip: Klik foto varian di galeri untuk langsung memilih varian tersebut
+                    </p>
+                    @endif
                 </div>
                 @endif
 
