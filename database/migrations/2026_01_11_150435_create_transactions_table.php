@@ -24,6 +24,7 @@ return new class extends Migration
 
             $table->string('payment_method'); // ✅ Tambahkan
             $table->enum('payment_status', ['unpaid', 'paid', 'refunded'])->default('unpaid'); // ✅ Tambahkan
+            $table->string('payment_proof')->nullable(); // ✅ Tambahkan
             $table->enum('status', ['pending', 'processing', 'completed', 'cancelled', 'failed'])->default('pending');
             $table->text('note')->nullable();
             $table->timestamps(); // created_at dan updated_at
