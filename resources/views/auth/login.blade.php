@@ -70,11 +70,11 @@
                         </label>
                     </div>
 
-                    <div class="text-sm">
+                    <!-- <div class="text-sm">
                         <a href="{{ route('password.request') }}" class="font-medium text-orange-600 hover:text-orange-500">
                             Lupa Password?
                         </a>
-                    </div>
+                    </div> -->
                 </div>
 
                 {{-- Submit Button --}}

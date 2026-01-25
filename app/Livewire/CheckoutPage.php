@@ -15,9 +15,15 @@ class CheckoutPage extends Component
 {
     public function mount()
     {
-        if (!Auth::check()) {
-            session()->flash('error', 'Silakan login terlebih dahulu untuk melakukan checkout.');
-            return redirect()->route('login');
+        if (Auth::check()) {
+            $customer = Auth::user()->customer;
+
+            if ($customer) {
+                // Pre-fill form dengan data customer
+                $this->name = $customer->name;
+                $this->phone = $customer->phone;
+                $this->address = $customer->address;
+            }
         }
     }
 
