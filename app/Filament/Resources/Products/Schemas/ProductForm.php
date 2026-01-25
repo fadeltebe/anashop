@@ -173,23 +173,23 @@ class ProductForm
                             ->schema([
                                 Grid::make(2)->schema([
                                     Select::make('attribute_id')
-                                        ->label('Atribut')
+                                        ->label('Jenis Atribut')
                                         ->options(Attribute::pluck('name', 'id'))
                                         ->searchable()
-                                        ->required()
-                                        ->live(),
+                                        ->createOptionForm([TextInput::make('name')->required()])
+                                        ->createOptionUsing(fn(array $data) => Attribute::create($data)->id)
+                                        ->live()
+                                        ->required(),
 
                                     Select::make('values')
-                                        ->label('Pilihan')
+                                        ->label('Pilihan Opsi')
                                         ->multiple()
-                                        ->options(
-                                            fn(Get $get) =>
-                                            AttributeValue::where('attribute_id', $get('attribute_id'))
-                                                ->pluck('value', 'id')
-                                        )
+                                        ->options(fn(Get $get) => AttributeValue::where('attribute_id', $get('attribute_id'))->pluck('value', 'id'))
                                         ->searchable()
-                                        ->required()
-                                        ->disabled(fn(Get $get) => !$get('attribute_id')),
+                                        ->preload()
+                                        ->live()
+                                        ->afterStateUpdated(fn(Get $get, Set $set) => static::updateVariants($get, $set))
+                                        ->required(),
                                 ]),
                             ])
                             ->live(debounce: 500)

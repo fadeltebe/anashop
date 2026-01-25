@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Log;
 
 class CheckoutPage extends Component
 {
+    public function mount()
+    {
+        if (!Auth::check()) {
+            session()->flash('error', 'Silakan login terlebih dahulu untuk melakukan checkout.');
+            return redirect()->route('login');
+        }
+    }
+
     public $name;
     public $phone;
     public $address;

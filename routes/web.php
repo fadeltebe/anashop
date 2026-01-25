@@ -70,6 +70,5 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/checkout', CheckoutPage::class)->name('checkout');
 });
-
-Route::get('/checkout', CheckoutPage::class)->name('checkout');
