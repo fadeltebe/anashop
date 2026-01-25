@@ -175,7 +175,7 @@ class ProductForm
                                     Select::make('attribute_id')
                                         ->label('Jenis Atribut')
                                         ->options(Attribute::pluck('name', 'id'))
-                                        ->searchable()
+                                        // ->searchable()
                                         ->createOptionForm([
                                             TextInput::make('name')
                                                 ->label('Nama Atribut Baru')
@@ -195,7 +195,7 @@ class ProductForm
                                             return AttributeValue::where('attribute_id', $attributeId)->pluck('value', 'id');
                                         })
                                         ->preload()
-                                        ->searchable()
+                                        // ->searchable()
                                         ->disabled(fn(Get $get) => !$get('attribute_id')) // Kunci jika atribut belum dipilih
                                         ->required()
                                         // --- TAMBAHKAN BAGIAN INI ---

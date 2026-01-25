@@ -29,6 +29,17 @@ use App\Http\Controllers\ProductCollectionController;
 
 Route::get('/', HomePage::class)->name('home');
 
+// Login routes
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'show'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+});
+
+// Logout route
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
+
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 

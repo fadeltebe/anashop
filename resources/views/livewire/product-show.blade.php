@@ -98,16 +98,16 @@
                     </label>
                     <div class="flex flex-wrap gap-2">
                         @foreach($availableVariants as $variant)
-                        <button wire:click="selectVariant({{ $variant->id }})" class="group relative px-5 py-2.5 rounded-lg border-2 transition-all font-medium
-                                {{ $activeVariant && $activeVariant->id === $variant->id 
-                                    ? 'bg-orange-500 text-white border-orange-500 shadow-md ring-2 ring-orange-200' 
-                                    : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300 hover:shadow-sm' }}
-                                {{ $variant->stock <= 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }}" {{ $variant->stock <= 0 ? 'disabled' : '' }}>
+                        <button wire:click="selectVariant({{ $variant->id }})" class="group relative px-3 py-1.5 rounded-md border text-sm transition-all font-medium
+        {{ $activeVariant && $activeVariant->id === $variant->id 
+            ? 'bg-orange-500 text-white border-orange-500 shadow-sm ring-2 ring-orange-200' 
+            : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400 hover:shadow-sm hover:bg-orange-50' }}
+        {{ $variant->stock <= 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }}" {{ $variant->stock <= 0 ? 'disabled' : '' }}>
 
                                 {{-- Badge jika variant punya foto --}}
                                 @if($variant->image)
-                                <div class="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
-                                    <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-orange-500 rounded-full flex items-center justify-center">
+                                    <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
                                     </svg>
                                 </div>
@@ -117,13 +117,13 @@
 
                                 {{-- Tampilkan harga jika berbeda --}}
                                 @if($variant->sale_price !== $activeVariant?->sale_price)
-                                <span class="block text-xs mt-1 opacity-75">
+                                <span class="block text-xs mt-0.5 opacity-75">
                                     Rp {{ number_format($variant->sale_price, 0, ',', '.') }}
                                 </span>
                                 @endif
 
                                 {{-- Badge stok habis --}}
-                                @if($variant->stock <= 0) <span class="block text-xs mt-1 text-red-600">Habis</span>
+                                @if($variant->stock <= 0) <span class="block text-xs mt-0.5 text-red-600 font-semibold">Habis</span>
                                     @endif
                         </button>
                         @endforeach
@@ -147,11 +147,11 @@
                             </span>
                         </p>
 
-                        @if($activeVariant)
+                        <!-- @if($activeVariant)
                         <p class="text-xs text-gray-500">
                             SKU: <span class="font-mono">{{ $activeVariant->sku }}</span>
                         </p>
-                        @endif
+                        @endif -->
                     </div>
                 </div>
 
