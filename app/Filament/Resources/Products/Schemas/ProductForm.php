@@ -50,7 +50,7 @@ class ProductForm
                             Select::make('category_id')
                                 ->label('Kategori Produk')
                                 ->relationship('category', 'name')
-                                ->searchable()
+                                // ->searchable()
                                 ->preload()
                                 ->required(),
                         ]),
@@ -176,7 +176,12 @@ class ProductForm
                                         ->label('Jenis Atribut')
                                         ->options(Attribute::pluck('name', 'id'))
                                         ->searchable()
-                                        ->createOptionForm([TextInput::make('name')->required()])
+                                        ->createOptionForm([
+                                            TextInput::make('name')
+                                                ->label('Nama Atribut Baru')
+                                                ->required()
+                                                ->unique(Attribute::class, 'name')
+                                        ])
                                         ->createOptionUsing(fn(array $data) => Attribute::create($data)->id)
                                         ->live()
                                         ->required(),
@@ -184,12 +189,30 @@ class ProductForm
                                     Select::make('values')
                                         ->label('Pilihan Opsi')
                                         ->multiple()
-                                        ->options(fn(Get $get) => AttributeValue::where('attribute_id', $get('attribute_id'))->pluck('value', 'id'))
-                                        ->searchable()
+                                        ->options(function (Get $get) {
+                                            $attributeId = $get('attribute_id');
+                                            if (!$attributeId) return [];
+                                            return AttributeValue::where('attribute_id', $attributeId)->pluck('value', 'id');
+                                        })
                                         ->preload()
+                                        ->searchable()
+                                        ->disabled(fn(Get $get) => !$get('attribute_id')) // Kunci jika atribut belum dipilih
+                                        ->required()
+                                        // --- TAMBAHKAN BAGIAN INI ---
+                                        ->createOptionForm([
+                                            TextInput::make('value')
+                                                ->label('Nilai Opsi Baru')
+                                                ->required(),
+                                        ])
+                                        ->createOptionUsing(function (array $data, Get $get) {
+                                            return AttributeValue::create([
+                                                'attribute_id' => $get('attribute_id'), // Menghubungkan otomatis ke Jenis Atribut
+                                                'value' => $data['value'],
+                                            ])->id;
+                                        })
+                                        // ----------------------------
                                         ->live()
-                                        ->afterStateUpdated(fn(Get $get, Set $set) => static::updateVariants($get, $set))
-                                        ->required(),
+                                        ->afterStateUpdated(fn(Get $get, Set $set) => static::updateVariants($get, $set)),
                                 ]),
                             ])
                             ->live(debounce: 500)
