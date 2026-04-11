@@ -40,9 +40,18 @@ $setting = \App\Models\Setting::first();
                 @livewire('cart-badge')
 
                 <!-- Login -->
-                <a href="/admin/login" class="bg-orange-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg hover:bg-orange-600 text-sm font-medium">
+                @if(!Auth::check())
+                <a href="/login" class="bg-orange-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg hover:bg-orange-600 text-sm font-medium">
                     Masuk
                 </a>
+                @else
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="bg-gray-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg hover:bg-gray-600 text-sm font-medium">
+                        Keluar
+                    </button>
+                </form>
+                @endif
             </nav>
         </div>
     </div>

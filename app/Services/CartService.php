@@ -64,6 +64,10 @@ class CartService
      * ====================================================== */
     public function addItem(int $productId, int $variantId, int $quantity = 1): CartItem
     {
+        if (!Auth::check()) {
+            throw new \Exception('Silakan login terlebih dahulu untuk menambahkan barang ke keranjang.');
+        }
+
         $cart = $this->getCart();
 
         // Validasi product exists

@@ -6,6 +6,7 @@ use App\Models\Product;
 use Livewire\Component;
 use App\Models\ProductVariant;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class ProductDetail extends Component
@@ -173,6 +174,12 @@ class ProductDetail extends Component
      * ====================================================== */
     public function addToCart(): void
     {
+        if (!Auth::check()) {
+            session()->flash('error', 'Silakan login terlebih dahulu untuk menambahkan barang ke keranjang.');
+            $this->redirect(route('login') . '?intended=' . urlencode(request()->url()));
+            return;
+        }
+
         if (!$this->activeVariant || $this->stock <= 0) {
             session()->flash('error', 'Produk tidak tersedia.');
             return;

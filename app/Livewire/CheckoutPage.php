@@ -13,31 +13,29 @@ use Illuminate\Support\Facades\Log;
 
 class CheckoutPage extends Component
 {
-    public function mount()
-    {
-        if (Auth::check()) {
-            $customer = Auth::user()->customer;
-
-            if ($customer) {
-                // Pre-fill form dengan data customer
-                $this->name = $customer->name;
-                $this->phone = $customer->phone;
-                $this->address = $customer->address;
-            }
-        }
-    }
-
-    public $name;
-    public $phone;
-    public $address;
     public $payment_method = '';
+    public $cart;
+    public $total = 0;
 
     protected $rules = [
-        'name' => 'required|string|min:3',
-        'phone' => 'required|string|min:8',
-        'address' => 'required|string|min:5',
         'payment_method' => 'required|string|in:qris,transfer,e_wallet,cod',
     ];
+
+    public function mount()
+    {
+        // Ambil cart beserta items
+        $cartService = app(CartService::class);
+        $this->cart = $cartService->getCartWithItems();
+
+        // Hitung total
+        $this->total = $this->cart->items->sum(fn($item) => $item->price * $item->quantity);
+
+        // Jika cart kosong, redirect ke halaman cart
+        if ($this->cart->items->isEmpty()) {
+            session()->flash('error', 'Keranjang Anda kosong.');
+            return redirect()->route('cart.index');
+        }
+    }
 
     public function submit()
     {

@@ -93,9 +93,15 @@
                             <span class="text-orange-600">Rp {{ number_format($total, 0, ',', '.') }}</span>
                         </div>
                     </div>
+                    @auth
                     <a href="{{ route('checkout') }}" class="block w-full bg-orange-500 hover:bg-orange-600 text-white text-center py-3 rounded-lg font-semibold transition">
                         Checkout
                     </a>
+                    @else
+                    <a href="{{ route('login') }}?redirect={{ urlencode(route('checkout')) }}" class="block w-full bg-orange-500 hover:bg-orange-600 text-white text-center py-3 rounded-lg font-semibold transition">
+                        Login untuk Checkout
+                    </a>
+                    @endauth
                 </div>
             </div>
         </div>

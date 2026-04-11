@@ -15,11 +15,16 @@ class LoginController extends Controller
     /**
      * Tampilkan halaman login
      */
-    public function show()
+    public function show(Request $request)
     {
         // Jika sudah login, redirect ke home
         if (Auth::check()) {
             return redirect()->route('home');
+        }
+
+        // Simpan intended URL jika ada
+        if ($request->has('intended')) {
+            session()->put('url.intended', $request->intended);
         }
 
         return view('auth.login');
